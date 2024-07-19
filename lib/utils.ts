@@ -16,16 +16,16 @@ export const formatDateTime = (dateString: Date | string) => {
     month: "short", // abbreviated month name (e.g., 'Oct')
     day: "numeric", // numeric day of the month (e.g., '25')
     year: "numeric", // numeric year (e.g., '2023')
-    hour: "numeric", // numeric hour (e.g., '8')
+    hour: "numeric", // numeric hour (e.g., '13')
     minute: "numeric", // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+    hour12: false, // use 24-hour clock
   };
 
   const dateDayOptions: Intl.DateTimeFormatOptions = {
     weekday: "short", // abbreviated weekday name (e.g., 'Mon')
     year: "numeric", // numeric year (e.g., '2023')
-    month: "2-digit", // abbreviated month name (e.g., 'Oct')
-    day: "2-digit", // numeric day of the month (e.g., '25')
+    month: "2-digit", // two-digit month (e.g., '10')
+    day: "2-digit", // two-digit day of the month (e.g., '25')
   };
 
   const dateOptions: Intl.DateTimeFormatOptions = {
@@ -35,28 +35,28 @@ export const formatDateTime = (dateString: Date | string) => {
   };
 
   const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: "numeric", // numeric hour (e.g., '8')
+    hour: "numeric", // numeric hour (e.g., '13')
     minute: "numeric", // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+    hour12: false, // use 24-hour clock
   };
 
+  // Locale set to 'en-GB' for European format, adjust as needed for specific European locales
+  const locale = "en-XK";
+
   const formattedDateTime: string = new Date(dateString).toLocaleString(
-    "en-US",
+    locale,
     dateTimeOptions
   );
-
   const formattedDateDay: string = new Date(dateString).toLocaleString(
-    "en-US",
+    locale,
     dateDayOptions
   );
-
   const formattedDate: string = new Date(dateString).toLocaleString(
-    "en-US",
+    locale,
     dateOptions
   );
-
   const formattedTime: string = new Date(dateString).toLocaleString(
-    "en-US",
+    locale,
     timeOptions
   );
 
@@ -75,3 +75,17 @@ export function encryptKey(passkey: string) {
 export function decryptKey(passkey: string) {
   return atob(passkey);
 }
+
+// export async function hashPasskey(passkey: string): Promise<string> {
+//   const bcrypt = await import("bcrypt"); // Dynamic import
+//   const salt = await bcrypt.genSalt(10);
+//   return await bcrypt.hash(passkey, salt);
+// }
+
+// export async function comparePasskey(
+//   passkey: string,
+//   hash: string
+// ): Promise<boolean> {
+//   const bcrypt = await import("bcrypt"); // Dynamic import
+//   return await bcrypt.compare(passkey, hash);
+// }
