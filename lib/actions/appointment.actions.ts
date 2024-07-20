@@ -46,9 +46,22 @@ export const getRecentAppointmentList = async () => {
   try {
     const appointments = await databases.listDocuments(
       DATABASE_ID!,
-      APPOINTMENT_COLLECTION_ID!,
-      [Query.orderDesc("$createdAt")]
+      APPOINTMENT_COLLECTION_ID!
+      // [Query.orderDesc("$createdAt")]
     );
+
+    // console.log("Raw appointments data:", appointments);
+
+    if (appointments.total === 0) {
+      // console.log("No appointments found");
+      return {
+        totalCount: 0,
+        scheduledCount: 0,
+        pendingCount: 0,
+        cancelledCount: 0,
+        documents: [],
+      };
+    }
 
     const initialCounts = {
       scheduledCount: 0,
@@ -79,7 +92,13 @@ export const getRecentAppointmentList = async () => {
     return parseStringify(data);
   } catch (error) {
     console.log(error);
-    // Return an object with default counts to prevent undefined access errors
+    return {
+      totalCount: 0,
+      scheduledCount: 0,
+      pendingCount: 0,
+      cancelledCount: 0,
+      documents: [],
+    };
   }
 };
 
