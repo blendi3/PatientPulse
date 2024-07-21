@@ -8,6 +8,7 @@ import { Doctors } from "@/constants";
 import Image from "next/image";
 import AppointmentModal from "../AppointmentModal";
 import { Appointment } from "@/types/appwrite.types";
+import DeleteButton from "../DeleteButton";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -89,6 +90,7 @@ export const columns: ColumnDef<Appointment>[] = [
             userId={data.userId}
             appointment={data}
           />
+          <DeleteButton appointmentId={data.$id} />
         </div>
       );
     },

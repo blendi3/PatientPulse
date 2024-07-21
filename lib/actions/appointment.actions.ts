@@ -103,6 +103,19 @@ export const getRecentAppointmentList = async () => {
   }
 };
 
+export const deleteAppointment = async (appointmentId: string) => {
+  try {
+    await databases.deleteDocument(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      appointmentId
+    );
+    revalidatePath("/admin"); // Ensure the admin page is revalidated
+  } catch (error) {
+    console.log("Error deleting appointment:", error);
+  }
+};
+
 export const updateAppointment = async ({
   userId,
   appointmentId,
