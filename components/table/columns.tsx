@@ -34,6 +34,29 @@ const useDoctors = () => {
   return doctors;
 };
 
+import { Row } from "@tanstack/react-table";
+
+const DoctorCell = ({ row }: { row: Row<Appointment> }) => {
+  const doctors = useDoctors(); // Fetch doctors
+
+  const doctor = doctors.find(
+    (doc) => doc.name === row.original.primaryPhysician
+  );
+
+  return (
+    <div className="flex items-center gap-2">
+      <Image
+        src={doctor?.image || "/assets/images/admin.png"}
+        alt={doctor?.name || "Doctor"}
+        width={100}
+        height={100}
+        className="size-8"
+      />
+      <p className="whitespace-nowrap">Dr. {doctor?.name}</p>
+    </div>
+  );
+};
+
 export const columns: ColumnDef<Appointment>[] = [
   {
     header: "ID",
@@ -84,26 +107,7 @@ export const columns: ColumnDef<Appointment>[] = [
   {
     accessorKey: "primaryPhysician",
     header: () => "Doctor",
-    cell: ({ row }) => {
-      const doctors = useDoctors(); // Fetch doctors
-
-      const doctor = doctors.find(
-        (doc) => doc.name === row.original.primaryPhysician
-      );
-
-      return (
-        <div className="flex items-center gap-2">
-          <Image
-            src={doctor?.image || "/assets/images/admin.png"}
-            alt={doctor?.name || "Doctor"}
-            width={100}
-            height={100}
-            className="size-8"
-          />
-          <p className="whitespace-nowrap">Dr. {doctor?.name}</p>
-        </div>
-      );
-    },
+    cell: DoctorCell,
   },
   {
     id: "actions",
