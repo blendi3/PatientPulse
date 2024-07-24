@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import CostumFormField from "@/components/CostumFormField";
 import SubmitButton from "../SubmitButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getAppointmentSchema } from "@/lib/validation";
 import { useRouter } from "next/navigation";
 import { createuser } from "@/lib/actions/patient.actions";
@@ -19,7 +19,8 @@ import {
   createAppointment,
   updateAppointment,
 } from "@/lib/actions/appointment.actions";
-import { Appointment } from "@/types/appwrite.types";
+import { Appointment, Doctor } from "@/types/appwrite.types";
+import { getDoctorList } from "@/lib/actions/doctor.actions";
 
 const AppointmentForm = ({
   userId,
@@ -35,10 +36,25 @@ const AppointmentForm = ({
   setIsOpen: (isOpen: boolean) => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [doctors, setDoctors] = useState<Doctor[]>([]); // State to store fetched doctors
   const router = useRouter();
 
   const AppointmentFormValidation = getAppointmentSchema(type);
 
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await getDoctorList();
+
+        if (response && response.documents) {
+          setDoctors(response.documents);
+        } else {
+        }
+      } catch (error) {}
+    };
+
+    fetchDoctors();
+  }, []);
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
     resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
@@ -151,11 +167,15 @@ const AppointmentForm = ({
               label="Doctor"
               placeholder="Select a doctor"
             >
-              {Doctors.map((doctor, i) => (
-                <SelectItem key={doctor.name + i} value={doctor.name}>
+              {doctors.map((doctor, i) => (
+                <SelectItem
+                  className="hover:bg-dark-500 cursor-pointer"
+                  key={doctor.$id}
+                  value={doctor.name}
+                >
                   <div className="flex cursor-pointer items-center gap-2">
                     <Image
-                      src={doctor.image}
+                      src={doctor.image || "/assets/images/admin.png"}
                       width={32}
                       height={32}
                       alt="doctor"

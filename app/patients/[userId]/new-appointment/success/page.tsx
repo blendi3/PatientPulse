@@ -7,6 +7,8 @@ import Link from "next/link";
 import React from "react";
 import * as Sentry from "@sentry/nextjs";
 import { getUser } from "@/lib/actions/patient.actions";
+import { getDoctorList } from "@/lib/actions/doctor.actions";
+import { Doctor } from "@/types/appwrite.types";
 
 const Success = async ({
   params: { userId },
@@ -14,8 +16,11 @@ const Success = async ({
 }: SearchParamProps) => {
   const appointmentId = (searchParams?.appointmentId as string) || "";
   const appointment = await getAppointment(appointmentId);
-  const doctor = Doctors.find(
-    (doc) => doc.name === appointment.primaryPhysician
+
+  const doctorsResponse = await getDoctorList();
+  const doctors = doctorsResponse?.documents || [];
+  const doctor = doctors.find(
+    (doc: Doctor) => doc.name === appointment.primaryPhysician
   );
 
   const user = await getUser(userId);
@@ -57,13 +62,13 @@ const Success = async ({
           <p>Requested appointment details:</p>
           <div className="flex items-center gap-3">
             <Image
-              src={doctor?.image!}
+              src={doctor.image || "/assets/images/admin.png"}
               height={100}
               width={100}
               alt="doctor"
               className="size-6"
             />
-            <p className="whitespace-nowrap">Dr. {doctor?.name}</p>
+            <p className="whitespace-nowrap">Dr. {doctor.name}</p>
           </div>
           <div className="flex gap-2">
             <Image

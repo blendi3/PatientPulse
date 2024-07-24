@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl } from "@/components/ui/form";
 import CostumFormField from "@/components/CostumFormField";
 import SubmitButton from "../SubmitButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PatientFormValidation, UserFormValidation } from "@/lib/validation";
 import { useRouter } from "next/navigation";
 import { createuser, registerPatient } from "@/lib/actions/patient.actions";
@@ -23,11 +23,29 @@ import { Label } from "../ui/label";
 import { SelectItem } from "@/components/ui/select";
 import Image from "next/image";
 import FileUploader from "../FileUploader";
+import { Doctor } from "@/types/appwrite.types";
+import { getDoctorList } from "@/lib/actions/doctor.actions";
 
 const RegisterForm = ({ user }: { user: User }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [doctors, setDoctors] = useState<Doctor[]>([]); // State to store fetched doctors
 
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await getDoctorList();
+
+        if (response && response.documents) {
+          setDoctors(response.documents);
+        } else {
+        }
+      } catch (error) {}
+    };
+
+    fetchDoctors();
+  }, []);
 
   const form = useForm<z.infer<typeof PatientFormValidation>>({
     resolver: zodResolver(PatientFormValidation),
@@ -201,15 +219,15 @@ const RegisterForm = ({ user }: { user: User }) => {
             label="Primary care physician"
             placeholder="Select a physician"
           >
-            {Doctors.map((doctor) => (
+            {doctors.map((doctor) => (
               <SelectItem
                 className="hover:bg-dark-500 cursor-pointer"
-                key={doctor.name}
+                key={doctor.$id}
                 value={doctor.name}
               >
                 <div className="flex items-center gap-2">
                   <Image
-                    src={doctor.image}
+                    src={doctor.image || "/assets/images/dr-green.png"}
                     width={32}
                     height={32}
                     alt={doctor.name}
