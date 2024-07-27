@@ -85,6 +85,7 @@ export const CreateAppointmentSchema = z.object({
     .max(500, "Reason must be at most 500 characters"),
   note: z.string().optional(),
   cancellationReason: z.string().optional(),
+  specialization: z.string().optional(),
 });
 
 export const DoctorFormValidation = z.object({
@@ -93,13 +94,18 @@ export const DoctorFormValidation = z.object({
     .min(2, "Name must be at least 2 characters")
     .max(50, "Name must be at most 50 characters"),
   email: z.string().email("Invalid email address"),
-  yearsOfExperience: z
-    .string()
-    .min(1, "Years of experience must be at least 1"),
+  specialization: z.string().min(1, "Years of experience must be at least 1"),
   phone: z
     .string()
     .refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
   image: z.custom<File[]>().optional(),
+});
+
+export const NewRoleFormValidation = z.object({
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be at most 50 characters"),
 });
 
 export const ScheduleAppointmentSchema = z.object({

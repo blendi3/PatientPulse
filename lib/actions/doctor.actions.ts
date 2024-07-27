@@ -7,6 +7,7 @@ import {
   databases,
   BUCKET_ID,
   storage,
+  SPECIALIZATION_COLLECTION_ID,
 } from "../appwrite.config";
 
 import { parseStringify } from "../utils";
@@ -49,10 +50,93 @@ export const getDoctorList = async () => {
 
     return parseStringify(doctors);
   } catch (error) {
-    console.log(error);
+    console.log("Error fetching doctors from the database. Error:", error);
   }
 };
 
+export const getDoctorsBySpecialization = async (specialization?: string) => {
+  try {
+    const allDoctorsResponse = await getDoctorList();
+    const allDoctors = allDoctorsResponse.documents; // Use documents array
+
+    if (!specialization) {
+      return allDoctors;
+    }
+
+    return allDoctors.filter(
+      (doctor: Doctor) => doctor.specialization === specialization
+    );
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+export const getSpecializationList = async () => {
+  try {
+    const doctors = await databases.listDocuments(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!,
+      []
+    );
+
+    // Cast documents to Doctor type and extract specializations
+    const specializations = Array.from(
+      new Set(
+        (doctors.documents as Doctor[]).map(
+          (doctor: Doctor) => doctor.specialization
+        )
+      )
+    );
+
+    return specializations;
+  } catch (error) {
+    console.log(error);
+    return []; // Return an empty array in case of an error
+  }
+};
+
+export const getCreatedRoles = async () => {
+  try {
+    const specializationsResponse = await databases.listDocuments(
+      DATABASE_ID!,
+      SPECIALIZATION_COLLECTION_ID!,
+      []
+    );
+
+    // Extract the list of specializations from the response
+    const specializations = specializationsResponse.documents.map(
+      (doc: any) => doc.name
+    );
+
+    console.log("Specializations from DB:", specializations);
+    return specializations;
+  } catch (error) {
+    console.error("Error fetching specializations:", error);
+    return []; // Return an empty array in case of an error
+  }
+};
+
+export const addSpecialization = async (specializationName: string) => {
+  try {
+    if (!specializationName || specializationName.trim() === "") {
+      throw new Error("Specialization name is required.");
+    }
+
+    const newSpecialization = await databases.createDocument(
+      DATABASE_ID!,
+      SPECIALIZATION_COLLECTION_ID!,
+      ID.unique(),
+      { name: specializationName }
+    );
+
+    console.log("New Specialization created:", newSpecialization);
+    return newSpecialization;
+  } catch (error) {
+    console.error("Error in addSpecialization:", error);
+    throw error;
+  }
+};
 export const uploadImage = async (image: string): Promise<any> => {
   try {
     console.log("Received image:", image); // Log the received image data

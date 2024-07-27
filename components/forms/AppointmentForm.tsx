@@ -20,7 +20,11 @@ import {
   updateAppointment,
 } from "@/lib/actions/appointment.actions";
 import { Appointment, Doctor } from "@/types/appwrite.types";
-import { getDoctorList } from "@/lib/actions/doctor.actions";
+import {
+  getDoctorList,
+  getDoctorsBySpecialization,
+  getSpecializationList,
+} from "@/lib/actions/doctor.actions";
 
 const AppointmentForm = ({
   userId,
@@ -38,23 +42,45 @@ const AppointmentForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [doctors, setDoctors] = useState<Doctor[]>([]); // State to store fetched doctors
   const router = useRouter();
+  const [specializations, setSpecializations] = useState<string[]>([]);
+  const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
 
   const AppointmentFormValidation = getAppointmentSchema(type);
 
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await getDoctorList();
-
-        if (response && response.documents) {
-          setDoctors(response.documents);
-        } else {
-        }
-      } catch (error) {}
+        const allDoctorsResponse = await getDoctorList();
+        const allDoctors = allDoctorsResponse.documents; // Use documents array
+        const filtered = allDoctors.filter(
+          (doctor: Doctor) =>
+            specializations.includes(doctor.specialization) &&
+            doctor.specialization != null
+        );
+        console.log("Filtered Doctors:", filtered); // Check filtered results
+        setFilteredDoctors(filtered);
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     fetchDoctors();
+  }, [specializations]);
+
+  useEffect(() => {
+    // Fetch specializations on component mount
+    const fetchSpecializations = async () => {
+      const specializations = await getSpecializationList();
+      setSpecializations(specializations);
+    };
+    fetchSpecializations();
   }, []);
+
+  const handleSpecializationChange = async (specialization: string) => {
+    // Fetch doctors based on selected specialization
+    const doctors = await getDoctorsBySpecialization(specialization);
+    setFilteredDoctors(doctors);
+  };
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
     resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
@@ -163,11 +189,30 @@ const AppointmentForm = ({
             <CostumFormField
               fieldType={FormFieldType.SELECT}
               control={form.control}
+              name="specialization"
+              label="Which Specialist Do You Need?"
+              placeholder="Choose a specialty from the list"
+              onChange={handleSpecializationChange} // Directly pass the handler
+            >
+              {specializations.map((specialization, i) => (
+                <SelectItem
+                  className="hover:bg-dark-500 cursor-pointer"
+                  key={i}
+                  value={specialization}
+                >
+                  {specialization}
+                </SelectItem>
+              ))}
+            </CostumFormField>
+
+            <CostumFormField
+              fieldType={FormFieldType.SELECT}
+              control={form.control}
               name="primaryPhysician"
               label="Doctor"
               placeholder="Select a doctor"
             >
-              {doctors.map((doctor, i) => (
+              {filteredDoctors.map((doctor) => (
                 <SelectItem
                   className="hover:bg-dark-500 cursor-pointer"
                   key={doctor.$id}

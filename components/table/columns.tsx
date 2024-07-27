@@ -95,7 +95,7 @@ export const columns: ColumnDef<Appointment>[] = [
     cell: ({ row }) => {
       if (row.original.schedule) {
         const formattedDate = formatDateTime(row.original.schedule).dateTime;
-        return <p className="text-14-regular min-w-[120px]">{formattedDate}</p>;
+        return <p className="text-14-regular min-w-[130px]">{formattedDate}</p>;
       } else {
         console.log("Schedule is undefined for row:", row);
         return (

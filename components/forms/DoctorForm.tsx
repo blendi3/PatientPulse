@@ -6,16 +6,23 @@ import { z } from "zod";
 import { Form, FormControl } from "@/components/ui/form";
 import CostumFormField from "@/components/CostumFormField";
 import SubmitButton from "../SubmitButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DoctorFormValidation } from "@/lib/validation";
-import { addDoctor } from "@/lib/actions/doctor.actions";
+import {
+  addDoctor,
+  getCreatedRoles,
+  getSpecializationList,
+} from "@/lib/actions/doctor.actions";
 import { FormFieldType } from "./PatientForm";
 import FileUploader from "../FileUploader";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { SelectItem } from "../ui/select";
+// import NewSpecializationDialog from "./NewSpecializationDialog"; // Import the dialog component
 
 const DoctorForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [specializations, setSpecializations] = useState<string[]>([]);
   // const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useForm<z.infer<typeof DoctorFormValidation>>({
@@ -23,7 +30,7 @@ const DoctorForm = () => {
     defaultValues: {
       name: "",
       email: "",
-      yearsOfExperience: "",
+      specialization: "",
       phone: "",
       image: undefined,
     },
@@ -32,7 +39,7 @@ const DoctorForm = () => {
   async function onSubmit({
     name,
     email,
-    yearsOfExperience,
+    specialization,
     phone,
     image,
   }: z.infer<typeof DoctorFormValidation>) {
@@ -42,7 +49,7 @@ const DoctorForm = () => {
       const doctorData = {
         name,
         email,
-        yearsOfExperience,
+        specialization,
         phone,
         image,
       };
@@ -59,6 +66,18 @@ const DoctorForm = () => {
     }
   }
 
+  const fetchSpecializations = async () => {
+    try {
+      const specs = await getCreatedRoles();
+      setSpecializations(specs);
+    } catch (error) {
+      console.error("Error fetching specializations:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSpecializations();
+  }, []);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
@@ -92,14 +111,24 @@ const DoctorForm = () => {
 
         <div className="flex flex-col gap-6 xl:flex-row">
           <CostumFormField
-            fieldType={FormFieldType.INPUT}
+            fieldType={FormFieldType.SELECT}
             control={form.control}
-            name="yearsOfExperience"
-            label="Years of Experience"
-            placeholder="10"
+            name="specialization"
+            label="Specialization"
+            placeholder="Urologyst"
             iconSrc="/assets/icons/experiencte.svg"
             iconAlt="experience"
-          />
+          >
+            {specializations.map((specialization, i) => (
+              <SelectItem
+                className="hover:bg-dark-500 cursor-pointer"
+                key={i}
+                value={specialization}
+              >
+                {specialization}
+              </SelectItem>
+            ))}
+          </CostumFormField>
           <CostumFormField
             fieldType={FormFieldType.PHONE_INPUT}
             control={form.control}

@@ -38,6 +38,7 @@ interface CostumProps {
   showTimeSelect?: boolean;
   children?: React.ReactNode;
   renderSkeleton?: (field: any) => React.ReactNode;
+  onChange?: (value: any) => void; // Add the onChange property
 }
 
 const RenderField = ({ field, props }: { field: any; props: CostumProps }) => {
@@ -123,7 +124,15 @@ const RenderField = ({ field, props }: { field: any; props: CostumProps }) => {
     case FormFieldType.SELECT:
       return (
         <FormControl>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select
+            onValueChange={(value) => {
+              field.onChange(value);
+              if (props.onChange) {
+                props.onChange(value);
+              }
+            }}
+            defaultValue={field.value}
+          >
             <FormControl>
               <SelectTrigger className="shad-select-trigger">
                 <SelectValue placeholder={props.placeholder} />

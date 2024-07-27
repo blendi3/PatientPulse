@@ -39,7 +39,7 @@ export interface Doctor extends Models.Document {
   userId: string;
   name: string;
   email: string;
-  yearsOfExperience: string;
+  specialization: string;
   phone: string;
   image: string | null;
 }
