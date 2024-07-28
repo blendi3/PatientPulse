@@ -22,7 +22,7 @@ const Success = async ({
   const doctors = doctorsResponse.documents;
 
   const doctor = doctors.find(
-    (doc: Doctor) => doc.$id === appointment.primaryPhysician
+    (doc: Doctor) => doc.name === appointment.primaryPhysician
   );
 
   const user = await getUser(userId);

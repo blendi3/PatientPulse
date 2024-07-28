@@ -78,6 +78,7 @@ const DoctorForm = () => {
   useEffect(() => {
     fetchSpecializations();
   }, []);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
@@ -115,7 +116,7 @@ const DoctorForm = () => {
             control={form.control}
             name="specialization"
             label="Specialization"
-            placeholder="Urologyst"
+            placeholder="Select a Specialization"
             iconSrc="/assets/icons/experiencte.svg"
             iconAlt="experience"
           >

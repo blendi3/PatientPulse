@@ -57,7 +57,6 @@ const AppointmentForm = ({
             specializations.includes(doctor.specialization) &&
             doctor.specialization != null
         );
-        console.log("Filtered Doctors:", filtered); // Check filtered results
         setFilteredDoctors(filtered);
       } catch (error) {
         console.log(error);
@@ -81,6 +80,7 @@ const AppointmentForm = ({
     const doctors = await getDoctorsBySpecialization(specialization);
     setFilteredDoctors(doctors);
   };
+
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
     resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
@@ -186,51 +186,53 @@ const AppointmentForm = ({
 
         {type !== "cancel" && (
           <>
-            <CostumFormField
-              fieldType={FormFieldType.SELECT}
-              control={form.control}
-              name="specialization"
-              label="Which Specialist Do You Need?"
-              placeholder="Choose a specialty from the list"
-              onChange={handleSpecializationChange} // Directly pass the handler
-            >
-              {specializations.map((specialization, i) => (
-                <SelectItem
-                  className="hover:bg-dark-500 cursor-pointer"
-                  key={i}
-                  value={specialization}
-                >
-                  {specialization}
-                </SelectItem>
-              ))}
-            </CostumFormField>
+            <div className="flex flex-col gap-6 xl:flex-row">
+              <CostumFormField
+                fieldType={FormFieldType.SELECT}
+                control={form.control}
+                name="specialization"
+                label="Which Specialist Do You Need?"
+                placeholder="Choose a specialty from the list"
+                onChange={handleSpecializationChange} // Directly pass the handler
+              >
+                {specializations.map((specialization, i) => (
+                  <SelectItem
+                    className="hover:bg-dark-500 cursor-pointer"
+                    key={i}
+                    value={specialization}
+                  >
+                    {specialization}
+                  </SelectItem>
+                ))}
+              </CostumFormField>
 
-            <CostumFormField
-              fieldType={FormFieldType.SELECT}
-              control={form.control}
-              name="primaryPhysician"
-              label="Doctor"
-              placeholder="Select a doctor"
-            >
-              {filteredDoctors.map((doctor) => (
-                <SelectItem
-                  className="hover:bg-dark-500 cursor-pointer"
-                  key={doctor.$id}
-                  value={doctor.name}
-                >
-                  <div className="flex cursor-pointer items-center gap-2">
-                    <Image
-                      src={doctor.image || "/assets/images/admin.png"}
-                      width={32}
-                      height={32}
-                      alt="doctor"
-                      className="rounded-full border border-dark-500"
-                    />
-                    <p>{doctor.name}</p>
-                  </div>
-                </SelectItem>
-              ))}
-            </CostumFormField>
+              <CostumFormField
+                fieldType={FormFieldType.SELECT}
+                control={form.control}
+                name="primaryPhysician"
+                label="Doctor"
+                placeholder="Select a doctor"
+              >
+                {filteredDoctors.map((doctor) => (
+                  <SelectItem
+                    className="hover:bg-dark-500 cursor-pointer"
+                    key={doctor.$id}
+                    value={doctor.name}
+                  >
+                    <div className="flex cursor-pointer items-center gap-2">
+                      <Image
+                        src={doctor.image || "/assets/images/admin.png"}
+                        width={32}
+                        height={32}
+                        alt="doctor"
+                        className="rounded-full border border-dark-500"
+                      />
+                      <p>{doctor.name}</p>
+                    </div>
+                  </SelectItem>
+                ))}
+              </CostumFormField>
+            </div>
 
             <CostumFormField
               fieldType={FormFieldType.DATE_PICKER}

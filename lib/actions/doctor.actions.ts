@@ -1,6 +1,6 @@
 "use server";
 
-import { ID } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 import {
   DOCTOR_COLLECTION_ID,
   DATABASE_ID,
@@ -12,6 +12,7 @@ import {
 
 import { parseStringify } from "../utils";
 import { Doctor } from "@/types/appwrite.types";
+import { revalidatePath } from "next/cache";
 
 export const addDoctor = async (doctor: Doctor) => {
   try {
@@ -32,8 +33,6 @@ export const addDoctor = async (doctor: Doctor) => {
       { ...doctor, image: imageUrl }
     );
 
-    console.log("New Doctor created:", newDoctor); // Log the new doctor object
-
     return parseStringify(newDoctor);
   } catch (error) {
     console.error("Error in addDoctor:", error);
@@ -45,12 +44,13 @@ export const getDoctorList = async () => {
     const doctors = await databases.listDocuments(
       DATABASE_ID!,
       DOCTOR_COLLECTION_ID!,
-      []
+      [Query.orderDesc("$createdAt")]
     );
 
     return parseStringify(doctors);
   } catch (error) {
-    console.log("Error fetching doctors from the database. Error:", error);
+    console.error("Error fetching doctors:", error);
+    return [];
   }
 };
 
@@ -101,7 +101,7 @@ export const getCreatedRoles = async () => {
     const specializationsResponse = await databases.listDocuments(
       DATABASE_ID!,
       SPECIALIZATION_COLLECTION_ID!,
-      []
+      [Query.orderDesc("$createdAt")]
     );
 
     // Extract the list of specializations from the response
@@ -109,7 +109,6 @@ export const getCreatedRoles = async () => {
       (doc: any) => doc.name
     );
 
-    console.log("Specializations from DB:", specializations);
     return specializations;
   } catch (error) {
     console.error("Error fetching specializations:", error);
@@ -131,7 +130,7 @@ export const addSpecialization = async (specializationName: string) => {
     );
 
     console.log("New Specialization created:", newSpecialization);
-    return newSpecialization;
+    return parseStringify(newSpecialization);
   } catch (error) {
     console.error("Error in addSpecialization:", error);
     throw error;

@@ -94,7 +94,12 @@ export const DoctorFormValidation = z.object({
     .min(2, "Name must be at least 2 characters")
     .max(50, "Name must be at most 50 characters"),
   email: z.string().email("Invalid email address"),
-  specialization: z.string().min(1, "Years of experience must be at least 1"),
+  specialization: z
+    .string()
+    .refine(
+      (specialization) => specialization.trim().length > 0,
+      "Specialization is required"
+    ),
   phone: z
     .string()
     .refine((phone) => /^\+\d{10,15}$/.test(phone), "Invalid phone number"),
