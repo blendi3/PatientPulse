@@ -51,10 +51,7 @@ export const getRecentAppointmentList = async () => {
       [Query.orderDesc("$createdAt")]
     );
 
-    // console.log("Raw appointments data:", appointments);
-
     if (appointments.total === 0) {
-      // console.log("No appointments found");
       return {
         totalCount: 0,
         scheduledCount: 0,
@@ -103,6 +100,21 @@ export const getRecentAppointmentList = async () => {
   }
 };
 
+export const getBookedSchedules = async () => {
+  try {
+    const schedules = await databases.listDocuments(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      [Query.orderAsc("schedule")]
+    );
+
+    return schedules.documents.map((schedule) => schedule.schedule);
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
 export const deleteAppointment = async (appointmentId: string) => {
   try {
     await databases.deleteDocument(
@@ -110,7 +122,7 @@ export const deleteAppointment = async (appointmentId: string) => {
       APPOINTMENT_COLLECTION_ID!,
       appointmentId
     );
-    revalidatePath("/admin"); // Ensure the admin page is revalidated
+    revalidatePath("/admin");
   } catch (error) {
     console.log("Error deleting appointment:", error);
   }

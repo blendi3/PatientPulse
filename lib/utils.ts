@@ -75,17 +75,3 @@ export function encryptKey(passkey: string) {
 export function decryptKey(passkey: string) {
   return atob(passkey);
 }
-
-// export async function hashPasskey(passkey: string): Promise<string> {
-//   const bcrypt = await import("bcrypt"); // Dynamic import
-//   const salt = await bcrypt.genSalt(10);
-//   return await bcrypt.hash(passkey, salt);
-// }
-
-// export async function comparePasskey(
-//   passkey: string,
-//   hash: string
-// ): Promise<boolean> {
-//   const bcrypt = await import("bcrypt"); // Dynamic import
-//   return await bcrypt.compare(passkey, hash);
-// }

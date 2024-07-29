@@ -319,6 +319,11 @@
   align-items: center;
 }
 
+.react-datepicker__time-list-item--disabled {
+  color: #6c757d !important;
+  cursor: not-allowed !important;
+}
+
 .react-datepicker,
 .react-datepicker__time,
 .react-datepicker__header,

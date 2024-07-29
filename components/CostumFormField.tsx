@@ -1,9 +1,7 @@
 "use client";
 
 import {
-  Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -38,7 +36,8 @@ interface CostumProps {
   showTimeSelect?: boolean;
   children?: React.ReactNode;
   renderSkeleton?: (field: any) => React.ReactNode;
-  onChange?: (value: any) => void; // Add the onChange property
+  onChange?: (value: any) => void;
+  filterTime?: (time: Date) => boolean;
 }
 
 const RenderField = ({ field, props }: { field: any; props: CostumProps }) => {
@@ -50,6 +49,8 @@ const RenderField = ({ field, props }: { field: any; props: CostumProps }) => {
     showTimeSelect,
     dateFormat,
     renderSkeleton,
+    // disabledTimes,
+    filterTime,
   } = props;
   switch (fieldType) {
     case FormFieldType.INPUT:
@@ -117,6 +118,7 @@ const RenderField = ({ field, props }: { field: any; props: CostumProps }) => {
               timeFormat="HH:mm"
               timeInputLabel="Time:"
               wrapperClassName="date-picker"
+              filterTime={filterTime}
             />
           </FormControl>
         </div>

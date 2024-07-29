@@ -3,20 +3,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import CostumFormField from "@/components/CostumFormField";
 import SubmitButton from "../SubmitButton";
 import { useEffect, useState } from "react";
 import { getAppointmentSchema } from "@/lib/validation";
 import { useRouter } from "next/navigation";
-import { createuser } from "@/lib/actions/patient.actions";
 import { FormFieldType } from "./PatientForm";
-import { Doctors } from "@/constants";
 import Image from "next/image";
 import { SelectItem } from "../ui/select";
 import {
   createAppointment,
+  getBookedSchedules,
   updateAppointment,
 } from "@/lib/actions/appointment.actions";
 import { Appointment, Doctor } from "@/types/appwrite.types";
@@ -40,10 +38,10 @@ const AppointmentForm = ({
   setIsOpen: (isOpen: boolean) => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [doctors, setDoctors] = useState<Doctor[]>([]); // State to store fetched doctors
   const router = useRouter();
   const [specializations, setSpecializations] = useState<string[]>([]);
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
+  const [bookedSchedules, setBookedSchedules] = useState<Date[]>([]);
 
   const AppointmentFormValidation = getAppointmentSchema(type);
 
@@ -67,7 +65,6 @@ const AppointmentForm = ({
   }, [specializations]);
 
   useEffect(() => {
-    // Fetch specializations on component mount
     const fetchSpecializations = async () => {
       const specializations = await getSpecializationList();
       setSpecializations(specializations);
@@ -76,9 +73,49 @@ const AppointmentForm = ({
   }, []);
 
   const handleSpecializationChange = async (specialization: string) => {
-    // Fetch doctors based on selected specialization
     const doctors = await getDoctorsBySpecialization(specialization);
     setFilteredDoctors(doctors);
+  };
+
+  useEffect(() => {
+    const fetchBookedSchedules = async () => {
+      try {
+        const schedules = await getBookedSchedules();
+        setBookedSchedules(
+          schedules.map((schedule: any) => new Date(schedule))
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchBookedSchedules();
+  }, []);
+
+  const filterTimes = (time: Date) => {
+    const selectedDate = form.getValues("schedule");
+    const disabledTimes = bookedSchedules
+      .filter((schedule) => {
+        const scheduleDate = new Date(schedule);
+        return scheduleDate.toDateString() === selectedDate.toDateString();
+      })
+      .map((schedule) => {
+        const scheduleDate = new Date(schedule);
+        return {
+          hours: scheduleDate.getHours(),
+          minutes: scheduleDate.getMinutes(),
+        };
+      });
+
+    const isWithinWorkingHours = time.getHours() >= 9 && time.getHours() < 19;
+
+    const isBooked = disabledTimes.some(
+      (disabledTime) =>
+        disabledTime.hours === time.getHours() &&
+        disabledTime.minutes === time.getMinutes()
+    );
+
+    return isWithinWorkingHours && !isBooked;
   };
 
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
@@ -241,6 +278,7 @@ const AppointmentForm = ({
               label="Expected appointment date"
               showTimeSelect
               dateFormat="dd/MM/yyyy - HH:mm"
+              filterTime={filterTimes}
             />
 
             <div className="flex flex-col gap-6 xl:flex-row">
