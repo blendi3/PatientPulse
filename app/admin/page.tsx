@@ -5,7 +5,6 @@ import React from "react";
 import { columns } from "@/components/table/columns";
 import Sidebar from "@/components/Sidebar";
 import MobileNav from "@/components/MobileNav";
-import DoctorForm from "@/components/forms/DoctorForm";
 import Image from "next/image";
 
 const Admin = async () => {

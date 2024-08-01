@@ -4,7 +4,6 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import StatusBadge from "../StatusBadge";
 import { formatDateTime } from "@/lib/utils";
-import { Doctors } from "@/constants";
 import Image from "next/image";
 import AppointmentModal from "../AppointmentModal";
 import { Appointment, Doctor } from "@/types/appwrite.types";
@@ -12,6 +11,8 @@ import DeleteButton from "../DeleteButton";
 import { useEffect, useState } from "react";
 import { getDoctorList } from "@/lib/actions/doctor.actions";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
+import { Row } from "@tanstack/react-table";
+import { deleteAppointment } from "@/lib/actions/appointment.actions";
 
 const useDoctors = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -33,8 +34,6 @@ const useDoctors = () => {
 
   return doctors;
 };
-
-import { Row } from "@tanstack/react-table";
 
 const DoctorCell = ({ row }: { row: Row<Appointment> }) => {
   const doctors = useDoctors(); // Fetch doctors
@@ -127,7 +126,12 @@ export const columns: ColumnDef<Appointment>[] = [
             userId={data.userId}
             appointment={data}
           />
-          <DeleteButton appointmentId={data.$id} />
+          <DeleteButton
+            id={data.$id}
+            title="Delete Appointment"
+            description="Are you sure you want to delete this appointment?"
+            deleteFunction={deleteAppointment}
+          />
         </div>
       );
     },

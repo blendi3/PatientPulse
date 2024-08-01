@@ -57,4 +57,9 @@ export const sidebarLinks = [
     imgURL: "/assets/icons/user-plus.svg",
     route: "/doctors",
   },
+  {
+    label: "Patients",
+    imgURL: "/assets/icons/patients.svg",
+    route: "/patientstask",
+  },
 ];

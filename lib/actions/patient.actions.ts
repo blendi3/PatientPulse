@@ -13,6 +13,17 @@ import {
 } from "../appwrite.config";
 import { parseStringify } from "../utils";
 import { InputFile } from "node-appwrite/file";
+import { revalidatePath } from "next/cache";
+
+const cache = {
+  patients: null,
+  timestamp: null,
+};
+
+const clearCache = () => {
+  cache.patients = null;
+  cache.timestamp = null;
+};
 
 export const createuser = async (user: CreateUserParams) => {
   try {
@@ -86,6 +97,61 @@ export const getPatient = async (userId: string) => {
     );
 
     return parseStringify(patients.documents[0]); // Ensure you're getting the first patient
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getPatients = async () => {
+  try {
+    const patients = await databases.listDocuments(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      [Query.orderDesc("$createdAt")]
+    );
+
+    console.log("patients", patients);
+
+    const patientsWithUserDetails = await Promise.all(
+      patients.documents.map(async (doc) => {
+        const user = await getUser(doc.userId); // Assuming each patient document has a userId field
+        return {
+          ...doc,
+          user: {
+            name: user.name,
+            phone: user.phone,
+            email: user.email,
+          },
+          patient: doc.patient || {}, // Ensure patient property is populated
+        };
+      })
+    );
+
+    // Filter out duplicate user names and phone numbers
+    const uniquePatients = patientsWithUserDetails.filter(
+      (patient, index, self) =>
+        index ===
+        self.findIndex(
+          (p) =>
+            p.user.name === patient.user.name &&
+            p.user.phone === patient.user.phone
+        )
+    );
+
+    return parseStringify(uniquePatients);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deletePatient = async (patientId: string) => {
+  try {
+    await databases.deleteDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      patientId
+    );
+    revalidatePath("/patientstask");
   } catch (error) {
     console.log(error);
   }

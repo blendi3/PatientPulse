@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Button } from "./ui/button";
-import { deleteAppointment } from "@/lib/actions/appointment.actions";
 import Image from "next/image";
 import {
   Dialog,
@@ -11,17 +10,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const DeleteButton = ({ appointmentId }: { appointmentId: string }) => {
+interface DeleteButtonProps {
+  id: string;
+  title: string;
+  description: string;
+  deleteFunction: (id: string) => Promise<void>;
+}
+
+const DeleteButton: React.FC<DeleteButtonProps> = ({
+  id,
+  title,
+  description,
+  deleteFunction,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  async function handleDeleteAppointment(appointmentId: string) {
+  const handleDelete = async () => {
     try {
-      await deleteAppointment(appointmentId);
+      await deleteFunction(id);
       setIsOpen(false);
     } catch (error) {
-      console.error("Failed to delete appointment:", error);
+      console.error("Failed to delete:", error);
     }
-  }
+  };
 
   return (
     <div>
@@ -39,17 +50,13 @@ const DeleteButton = ({ appointmentId }: { appointmentId: string }) => {
         </DialogTrigger>
         <DialogContent className="shad-dialog sm:max-w-md">
           <DialogHeader className="mb-4 space-y-3">
-            <DialogTitle className="capitalize">Delete Appointment</DialogTitle>
+            <DialogTitle className="capitalize">{title}</DialogTitle>
             <DialogDescription>
-              Are you sure you are willing to delete this appointment?{" "}
-              <strong>This action cannot be undone.</strong>
+              {description} <strong>This action cannot be undone.</strong>
             </DialogDescription>
           </DialogHeader>
-          <Button
-            variant="danger"
-            onClick={() => handleDeleteAppointment(appointmentId)}
-          >
-            Delete Appointment
+          <Button variant="danger" onClick={handleDelete}>
+            Delete
           </Button>
         </DialogContent>
       </Dialog>

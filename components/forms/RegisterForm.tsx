@@ -14,7 +14,6 @@ import { createuser, registerPatient } from "@/lib/actions/patient.actions";
 import { FormFieldType } from "./PatientForm";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  Doctors,
   GenderOptions,
   IdentificationTypes,
   PatientFormDefaultValues,

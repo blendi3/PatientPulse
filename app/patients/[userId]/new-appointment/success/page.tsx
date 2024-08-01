@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Doctors } from "@/constants";
 import { getAppointment } from "@/lib/actions/appointment.actions";
 import { formatDateTime } from "@/lib/utils";
 import Image from "next/image";
