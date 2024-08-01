@@ -15,16 +15,6 @@ import { parseStringify } from "../utils";
 import { InputFile } from "node-appwrite/file";
 import { revalidatePath } from "next/cache";
 
-const cache = {
-  patients: null,
-  timestamp: null,
-};
-
-const clearCache = () => {
-  cache.patients = null;
-  cache.timestamp = null;
-};
-
 export const createuser = async (user: CreateUserParams) => {
   try {
     const newUser = await users.create(
