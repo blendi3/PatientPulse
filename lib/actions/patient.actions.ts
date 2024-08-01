@@ -100,6 +100,13 @@ export const getPatients = async () => {
       [Query.orderDesc("$createdAt")]
     );
 
+    if (patients.total === 0) {
+      return {
+        totalCount: 0,
+        documents: [],
+      };
+    }
+
     const userMap = new Map<string, any>();
 
     const patientsWithUserDetails = await Promise.all(
@@ -130,9 +137,18 @@ export const getPatients = async () => {
       );
     });
 
-    return parseStringify(uniquePatients);
+    const data = {
+      totalCount: patients.total,
+      documents: uniquePatients,
+    };
+
+    return parseStringify(data);
   } catch (error) {
     console.log(error);
+    return {
+      totalCount: 0,
+      documents: [],
+    };
   }
 };
 

@@ -7,7 +7,7 @@ import Image from "next/image";
 
 const Patients = async () => {
   const patients = await getPatients();
-  console.log("patients", patients);
+
   return (
     <div className="md:flex">
       <Sidebar />
@@ -36,7 +36,7 @@ const Patients = async () => {
               </div>
             </div>
           </section>
-          <PatientsTable columns={patientscolum} data={patients} />
+          <PatientsTable columns={patientscolum} data={patients.documents} />
         </main>
       </div>
     </div>
