@@ -100,33 +100,35 @@ export const getPatients = async () => {
       [Query.orderDesc("$createdAt")]
     );
 
-    console.log("patients", patients);
+    const userMap = new Map<string, any>();
 
     const patientsWithUserDetails = await Promise.all(
       patients.documents.map(async (doc) => {
         const user = await getUser(doc.userId); // Assuming each patient document has a userId field
-        return {
-          ...doc,
-          user: {
+        const userKey = `${user.name}-${user.phone}`;
+
+        if (!userMap.has(userKey)) {
+          userMap.set(userKey, {
             name: user.name,
             phone: user.phone,
             email: user.email,
-          },
-          patient: doc.patient || {}, // Ensure patient property is populated
+          });
+        }
+
+        return {
+          ...doc,
+          user: userMap.get(userKey),
         };
       })
     );
 
-    // Filter out duplicate user names and phone numbers
-    const uniquePatients = patientsWithUserDetails.filter(
-      (patient, index, self) =>
-        index ===
-        self.findIndex(
-          (p) =>
-            p.user.name === patient.user.name &&
-            p.user.phone === patient.user.phone
-        )
-    );
+    // Filter out duplicate users
+    const uniquePatients = Array.from(userMap.values()).map((user) => {
+      return patientsWithUserDetails.find(
+        (patient) =>
+          patient.user.name === user.name && patient.user.phone === user.phone
+      );
+    });
 
     return parseStringify(uniquePatients);
   } catch (error) {
