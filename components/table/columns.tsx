@@ -43,7 +43,7 @@ const DoctorCell = ({ row }: { row: Row<Appointment> }) => {
   );
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 min-w-[140px]">
       <Image
         src={doctor?.image || "/assets/images/admin.png"}
         alt={doctor?.name || "Doctor"}
@@ -65,7 +65,9 @@ export const columns: ColumnDef<Appointment>[] = [
     accessorKey: "patient",
     header: "Patient",
     cell: ({ row }) => (
-      <p className="text-14-medium min-w-[90px]">{row.original.patient.name}</p>
+      <p className="text-14-medium min-w-[140px]">
+        {row.original.patient.name}
+      </p>
     ),
   },
   {
@@ -73,7 +75,7 @@ export const columns: ColumnDef<Appointment>[] = [
     header: "Status",
     cell: ({ row }) => {
       return (
-        <div className="min-w-[115px]">
+        <div className="min-w-[120px]">
           <StatusBadge status={row.original.status} />
         </div>
       );
@@ -85,7 +87,7 @@ export const columns: ColumnDef<Appointment>[] = [
     cell: ({ row }) => {
       const formattedPhone = formatPhoneNumberIntl(row.original.patient.phone);
 
-      return <p className="text-14-medium min-w-[110px]">{formattedPhone}</p>;
+      return <p className="text-14-medium min-w-[140px]">{formattedPhone}</p>;
     },
   },
   {
@@ -94,7 +96,7 @@ export const columns: ColumnDef<Appointment>[] = [
     cell: ({ row }) => {
       if (row.original.schedule) {
         const formattedDate = formatDateTime(row.original.schedule).dateTime;
-        return <p className="text-14-regular min-w-[130px]">{formattedDate}</p>;
+        return <p className="text-14-regular min-w-[140px]">{formattedDate}</p>;
       } else {
         console.log("Schedule is undefined for row:", row);
         return (

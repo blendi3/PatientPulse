@@ -9,12 +9,14 @@ interface SearchBarProps {
   setQuery: (query: string) => void;
   iconSrc?: string;
   iconAlt?: string;
+  placeholder: string;
 }
 const SearchBar: React.FC<SearchBarProps> = ({
   query,
   setQuery,
   iconSrc,
   iconAlt,
+  placeholder,
 }) => {
   return (
     <div className="flex rounded-md border border-dark-500 bg-dark-400">
@@ -30,7 +32,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search patients by name"
+        placeholder={placeholder}
         className="searchBar min-w-[200px] xl:min-w-[300px] border-0"
       />
     </div>

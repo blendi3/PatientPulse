@@ -33,6 +33,8 @@ export const addDoctor = async (doctor: Doctor) => {
       { ...doctor, image: imageUrl }
     );
 
+    revalidatePath("/doctors/registerdoctor");
+
     return parseStringify(newDoctor);
   } catch (error) {
     console.error("Error in addDoctor:", error);
@@ -50,7 +52,7 @@ export const getDoctorList = async () => {
     return parseStringify(doctors);
   } catch (error) {
     console.error("Error fetching doctors:", error);
-    return [];
+    return { documents: [] };
   }
 };
 

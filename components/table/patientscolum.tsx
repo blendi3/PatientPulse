@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Appointment, Doctor } from "@/types/appwrite.types";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 export const patientscolum: ColumnDef<Appointment>[] = [
   {
@@ -19,9 +20,10 @@ export const patientscolum: ColumnDef<Appointment>[] = [
   {
     accessorKey: "phone",
     header: "Phone",
-    cell: ({ row }) => (
-      <p className="text-14-medium min-w-[90px]">{row.original.user.phone}</p>
-    ),
+    cell: ({ row }) => {
+      const formattedPhone = formatPhoneNumberIntl(row.original.user.phone);
+      return <p className="text-14-medium min-w-[90px]">{formattedPhone}</p>;
+    },
   },
   {
     accessorKey: "email",

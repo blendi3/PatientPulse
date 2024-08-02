@@ -23,7 +23,7 @@ const Admin = async () => {
         />
         <MobileNav />
       </div>
-      <div className="mx-auto flex max-w-7xl min-w-20 flex-col space-y-14">
+      <div className="mx-auto flex max-w-7xl md:max-w-5xl min-w-20 flex-col space-y-14">
         {/* <header className="admin-header">
           <Link href="/" className="cursor-pointer">
             <div className="flex items-center gap-1">

@@ -49,7 +49,7 @@ const PatientsPage = () => {
       <div className="block md:hidden">
         <MobileNav />
       </div>
-      <div className="flex-1 mx-auto max-w-7xl flex flex-col space-y-14 xl:p-4">
+      <div className="flex-1 mx-auto max-w-7xl md:max-w-6xl flex flex-col space-y-14 xl:p-4">
         <main className="admin-main">
           <section className="w-full space-y-4">
             <div className="flex flex-col md:flex md:justify-between md:flex-row">
@@ -61,7 +61,11 @@ const PatientsPage = () => {
                 </p>
               </div>
               <div>
-                <SearchBar query={query} setQuery={setQuery} />
+                <SearchBar
+                  query={query}
+                  setQuery={setQuery}
+                  placeholder="Search patients by name"
+                />
               </div>
             </div>
           </section>

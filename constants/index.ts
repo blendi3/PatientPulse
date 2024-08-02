@@ -48,7 +48,7 @@ export const StatusIcon = {
 
 export const sidebarLinks = [
   {
-    label: "Dashboard",
+    label: "Appointments",
     imgURL: "/assets/icons/home.svg",
     route: "/admin",
   },
