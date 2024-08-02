@@ -3,10 +3,12 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Appointment, Doctor } from "@/types/appwrite.types";
-import DeleteButton from "../DeleteButton";
-import { deletePatient } from "@/lib/actions/patient.actions";
 
 export const patientscolum: ColumnDef<Appointment>[] = [
+  {
+    header: "ID",
+    cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>,
+  },
   {
     accessorKey: "user",
     header: "Patient",
@@ -26,18 +28,6 @@ export const patientscolum: ColumnDef<Appointment>[] = [
     header: "Email",
     cell: ({ row }) => (
       <p className="text-14-medium min-w-[90px]">{row.original.user.email}</p>
-    ),
-  },
-  {
-    accessorKey: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <DeleteButton
-        id={row.original.$id}
-        title="Delete Patient"
-        description="Are you sure you want to delete this patient?"
-        deleteFunction={deletePatient}
-      />
     ),
   },
 ];

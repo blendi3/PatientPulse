@@ -72,6 +72,7 @@ export const registerPatient = async ({
       }
     );
 
+    revalidatePath("/patientstask");
     return parseStringify(newPatient);
   } catch (error) {
     console.log(error);
@@ -100,67 +101,32 @@ export const getPatients = async () => {
       [Query.orderDesc("$createdAt")]
     );
 
-    if (patients.total === 0) {
-      return {
-        totalCount: 0,
-        documents: [],
-      };
-    }
-
-    const userMap = new Map<string, any>();
-
     const patientsWithUserDetails = await Promise.all(
       patients.documents.map(async (doc) => {
         const user = await getUser(doc.userId); // Assuming each patient document has a userId field
-        const userKey = `${user.name}-${user.phone}`;
-
-        if (!userMap.has(userKey)) {
-          userMap.set(userKey, {
+        return {
+          ...doc,
+          user: {
             name: user.name,
             phone: user.phone,
             email: user.email,
-          });
-        }
-
-        return {
-          ...doc,
-          user: userMap.get(userKey),
+          },
         };
       })
     );
 
-    // Filter out duplicate users
-    const uniquePatients = Array.from(userMap.values()).map((user) => {
-      return patientsWithUserDetails.find(
-        (patient) =>
-          patient.user.name === user.name && patient.user.phone === user.phone
-      );
-    });
-
-    const data = {
-      totalCount: patients.total,
-      documents: uniquePatients,
-    };
-
-    return parseStringify(data);
-  } catch (error) {
-    console.log(error);
-    return {
-      totalCount: 0,
-      documents: [],
-    };
-  }
-};
-
-export const deletePatient = async (patientId: string) => {
-  try {
-    await databases.deleteDocument(
-      DATABASE_ID!,
-      PATIENT_COLLECTION_ID!,
-      patientId
+    const uniquePatients = patientsWithUserDetails.filter(
+      (patient, index, self) =>
+        index ===
+        self.findIndex(
+          (p) =>
+            p.user.name === patient.user.name &&
+            p.user.phone === patient.user.phone
+        )
     );
-    revalidatePath("/patientstask");
+
+    return parseStringify(uniquePatients);
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching patients:", error);
   }
 };

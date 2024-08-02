@@ -228,7 +228,7 @@ const AppointmentForm = ({
                 fieldType={FormFieldType.SELECT}
                 control={form.control}
                 name="specialization"
-                label="Which Specialist Do You Need?"
+                label="Specialist?"
                 placeholder="Choose a specialty from the list"
                 onChange={handleSpecializationChange} // Directly pass the handler
               >
