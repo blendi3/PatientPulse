@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -68,10 +69,11 @@ export const formatDateTime = (dateString: Date | string) => {
   };
 };
 
-export function encryptKey(passkey: string) {
-  return btoa(passkey);
+export function hashPasskey(passkey: string): string {
+  const salt = bcrypt.genSaltSync(10);
+  return bcrypt.hashSync(passkey, salt);
 }
 
-export function decryptKey(passkey: string) {
-  return atob(passkey);
+export function comparePasskey(passkey: string, hash: string): boolean {
+  return bcrypt.compareSync(passkey, hash);
 }

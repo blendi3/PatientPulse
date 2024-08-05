@@ -16,7 +16,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { decryptKey, encryptKey } from "@/lib/utils";
+import { comparePasskey, hashPasskey } from "@/lib/utils";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -28,37 +28,41 @@ const PasskeyModal = () => {
   const [passkey, setPasskey] = useState("");
   const [error, setError] = useState("");
 
-  const encrytedKey =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem("accessKey")
-      : null;
+  const hashedAdminPasskey = hashPasskey(
+    process.env.NEXT_PUBLIC_ADMIN_PASSKEY!
+  );
 
   useEffect(() => {
-    const accessKey = encrytedKey && decryptKey(encrytedKey);
+    const accessKey =
+      typeof window !== "undefined"
+        ? window.localStorage.getItem("accessKey")
+        : null;
 
     if (path) {
-      if (accessKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
+      if (
+        accessKey &&
+        comparePasskey(process.env.NEXT_PUBLIC_ADMIN_PASSKEY!, accessKey)
+      ) {
         setOpen(false);
         router.push("/admin");
       } else {
         setOpen(true);
       }
     }
-  }, [encrytedKey]);
+  }, [path]);
 
   const validatePasskey = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
 
-    if (passkey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
-      const encryptedKey = encryptKey(passkey);
-
-      localStorage.setItem("accessKey", encryptedKey);
-
+    if (comparePasskey(passkey, hashedAdminPasskey)) {
+      const hashedKey = hashPasskey(passkey);
+      localStorage.setItem("accessKey", hashedKey);
       setOpen(false);
+      router.push("/admin");
     } else {
-      setError("Invalid passkey. Please try again. ");
+      setError("Invalid passkey. Please try again.");
     }
   };
 
