@@ -18,12 +18,12 @@ export const addDoctor = async (doctor: Doctor) => {
   try {
     let imageUrl = "";
 
-    console.log("Doctor object received:", doctor); // Log the doctor object
+    console.log("Doctor object received:", doctor);
 
     if (doctor.image) {
       const uploadedImage = await uploadImage(doctor.image);
       imageUrl = uploadedImage.$id;
-      console.log("Uploaded Image URL:", imageUrl); // Log the uploaded image URL
+      console.log("Uploaded Image URL:", imageUrl);
     }
 
     const newDoctor = await databases.createDocument(
@@ -33,7 +33,7 @@ export const addDoctor = async (doctor: Doctor) => {
       { ...doctor, image: imageUrl }
     );
 
-    revalidatePath("/doctors/registerdoctor");
+    revalidatePath("/doctors");
 
     return parseStringify(newDoctor);
   } catch (error) {
@@ -59,7 +59,7 @@ export const getDoctorList = async () => {
 export const getDoctorsBySpecialization = async (specialization?: string) => {
   try {
     const allDoctorsResponse = await getDoctorList();
-    const allDoctors = allDoctorsResponse.documents; // Use documents array
+    const allDoctors = allDoctorsResponse.documents;
 
     if (!specialization) {
       return allDoctors;
@@ -82,7 +82,6 @@ export const getSpecializationList = async () => {
       []
     );
 
-    // Cast documents to Doctor type and extract specializations
     const specializations = Array.from(
       new Set(
         (doctors.documents as Doctor[]).map(
@@ -94,7 +93,21 @@ export const getSpecializationList = async () => {
     return specializations;
   } catch (error) {
     console.log(error);
-    return []; // Return an empty array in case of an error
+    return [];
+  }
+};
+
+export const deleteDoctor = async (doctorId: string) => {
+  try {
+    await databases.deleteDocument(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!,
+      doctorId
+    );
+
+    revalidatePath("/doctors");
+  } catch (error) {
+    console.error("Error in deleteDoctor:", error);
   }
 };
 
@@ -106,7 +119,6 @@ export const getCreatedRoles = async () => {
       [Query.orderDesc("$createdAt")]
     );
 
-    // Extract the list of specializations from the response
     const specializations = specializationsResponse.documents.map(
       (doc: any) => doc.name
     );
@@ -114,7 +126,7 @@ export const getCreatedRoles = async () => {
     return specializations;
   } catch (error) {
     console.error("Error fetching specializations:", error);
-    return []; // Return an empty array in case of an error
+    return [];
   }
 };
 
@@ -140,13 +152,13 @@ export const addSpecialization = async (specializationName: string) => {
 };
 export const uploadImage = async (image: string): Promise<any> => {
   try {
-    console.log("Received image:", image); // Log the received image data
+    console.log("Received image:", image);
 
     const buffer = Buffer.from(image, "base64");
-    console.log("Buffer created:", buffer); // Log the buffer object
+    console.log("Buffer created:", buffer);
 
     const file = new File([buffer], "image.jpg", { type: "image/jpeg" });
-    console.log("File created:", file); // Log the file object
+    console.log("File created:", file);
 
     const uploadedImage = await storage.createFile(
       BUCKET_ID!,
@@ -154,8 +166,7 @@ export const uploadImage = async (image: string): Promise<any> => {
       file
     );
 
-    console.log("Uploaded Image:", uploadedImage); // Log the uploaded image object
-
+    console.log("Uploaded Image:", uploadedImage);
     return parseStringify(uploadedImage);
   } catch (error) {
     console.error("Upload Image error", error);

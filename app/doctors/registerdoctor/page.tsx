@@ -3,6 +3,14 @@ import MobileNav from "@/components/MobileNav";
 import NewRole from "@/components/NewRole";
 import Sidebar from "@/components/Sidebar";
 import Image from "next/image";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const RegisterDoctors = () => {
   return (
@@ -22,7 +30,25 @@ const RegisterDoctors = () => {
         <MobileNav />
       </div>
       <div className="flex-1 mx-auto max-w-7xl md:max-w-6xl flex flex-col space-y-14 xl:p-4">
-        <main className="admin-main">
+        <main className="admin-main-costum">
+          <Breadcrumb className="breadcrumb-modern">
+            <BreadcrumbList className="breadcrumb-list-modern">
+              <BreadcrumbItem className="breadcrumb-item-modern">
+                <BreadcrumbLink
+                  href="/doctors"
+                  className="breadcrumb-link-modern"
+                >
+                  Doctors
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="breadcrumb-separator-modern" />
+              <BreadcrumbItem className="breadcrumb-item-modern">
+                <BreadcrumbPage className="breadcrumb-page-modern">
+                  Register Doctors
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <section className="w-full space-y-4">
             <div className="flex flex-col md:flex md:justify-between md:flex-row">
               <div>

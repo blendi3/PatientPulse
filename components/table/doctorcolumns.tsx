@@ -3,6 +3,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Doctor } from "@/types/appwrite.types";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
+import DeleteButton from "../DeleteButton";
+import { deleteDoctor } from "@/lib/actions/doctor.actions";
 
 export const doctorcolumn: ColumnDef<Doctor>[] = [
   {
@@ -39,5 +41,21 @@ export const doctorcolumn: ColumnDef<Doctor>[] = [
         {row.original.specialization}
       </p>
     ),
+  },
+  {
+    accessorKey: "actions",
+    header: "Actions",
+    cell: ({ row: { original: data } }) => {
+      return (
+        <div className="flex gap-4">
+          <DeleteButton
+            id={data.$id}
+            title="Delete Appointment"
+            description="Are you sure you want to delete this appointment?"
+            deleteFunction={deleteDoctor}
+          />
+        </div>
+      );
+    },
   },
 ];
