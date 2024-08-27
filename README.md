@@ -29,7 +29,7 @@ This is a comprehensive patient management application designed to streamline th
 
 ## Live Demo
 
-[PatientPulse Live Demo](https://patient-pulse.vercel.app/)
+<a href ="https://patient-pulse.vercel.app/" targer="_blank">PatientPulse Live Demo</a>
 
 Feel free to register as a patient, schedule appointments, or log in as an admin to explore the full functionality of the app.
 
