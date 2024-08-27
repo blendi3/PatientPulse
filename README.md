@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# PatientPulse
 
-## Getting Started
+This is a comprehensive patient management application designed to streamline the process of managing patient appointments, doctor registrations, and administrative tasks. The app leverages modern web technologies to deliver a seamless and efficient user experience.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Patient Self-Registration**: Patients can easily register themselves with detailed information, which is then sent to the admin for review.
+- **Appointment Scheduling**: Schedule, create, or cancel appointments with doctors.
+- **Admin Dashboard**: Manage scheduled, pending, and canceled appointments through a secure, password-protected admin portal.
+- **Doctor Management**: Register new doctors and assign them to appointments.
+- **Real-Time Updates**: Receive immediate feedback after booking appointments, including success messages and status updates.
+- **OTP Login**: Secure admin access using a One-Time Password (OTP) system.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technologies Used
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Next.js**: For server-side rendering and enhanced performance.
+- **React**: For building the dynamic user interface.
+- **TailwindCSS**: For styling the application with responsive design principles.
+- **Sentry**: For real-time error tracking and monitoring.
+- **Appwrite**: For backend management, including user authentication and database handling.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Usage
 
-## Learn More
+- **Patient Self-Registration**: Patients start by registering themselves through the dedicated registration form on the first three pages. The data is then sent to the admin for further processing.
+- **Schedule Appointments**: Use the appointment page to select a doctor, choose the reason, time, and date, and confirm the appointment.
+- **Admin Access**: Log in to the admin dashboard using the provided passkey to manage appointments and view patient details.
+- **Manage Doctors**: Add new doctors to the system, which then appear in the patient registration form for selection.
+- **View Appointments**: Use the admin page to oversee all appointments, filter by status, and manage patient information.
 
-To learn more about Next.js, take a look at the following resources:
+## Live Demo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+[PatientPulse Live Demo](https://patient-pulse.vercel.app/)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Feel free to register as a patient, schedule appointments, or log in as an admin to explore the full functionality of the app.
 
-## Deploy on Vercel
+### !IMPORTANT
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+For demonstration purposes, use the following credentials to access the admin panel:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+**Admin Passkey**: 123456
