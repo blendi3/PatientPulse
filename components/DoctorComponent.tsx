@@ -11,14 +11,34 @@ import { Doctor } from "@/types/appwrite.types";
 import SearchBar from "./SearchBar";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
+import { account } from "@/lib/appwrite.client";
 
 const DoctorComponent = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [query, setQuery] = useState("");
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
+  const [authorized, setAuthorized] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    const checkAccess = async () => {
+      try {
+        const user = await account.get();
+        const labels = (user as any).labels || [];
+        if (!labels.includes("mvp")) {
+          router.push("/admin");
+          return;
+        }
+        setAuthorized(true);
+      } catch {
+        router.push("/");
+      }
+    };
+    checkAccess();
+  }, [router]);
+
+  useEffect(() => {
+    if (!authorized) return;
     const fetchPatients = async () => {
       const doctorData = await getDoctorList();
       setDoctors(doctorData.documents);
@@ -26,7 +46,7 @@ const DoctorComponent = () => {
     };
 
     fetchPatients();
-  }, []);
+  }, [authorized]);
 
   useEffect(() => {
     if (Array.isArray(doctors)) {
@@ -43,6 +63,8 @@ const DoctorComponent = () => {
   const handleRegisterDoctor = () => {
     router.push("/doctors/registerdoctor");
   };
+
+  if (!authorized) return null;
 
   return (
     <div className="md:flex">

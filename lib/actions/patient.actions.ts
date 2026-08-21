@@ -20,18 +20,18 @@ export const createuser = async (user: CreateUserParams) => {
     const newUser = await users.create(
       ID.unique(),
       user.email,
-      user.phone,
+      undefined, 
       undefined,
       user.name
     );
-
     return parseStringify(newUser);
   } catch (error: any) {
+    console.error("Error in createuser:", error);
     if (error && error?.code === 409) {
       const documents = await users.list([Query.equal("email", [user.email])]);
-
       return documents?.users[0];
     }
+    throw error;
   }
 };
 

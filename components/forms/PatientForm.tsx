@@ -36,23 +36,22 @@ const PatientForm = () => {
     },
   });
 
-  async function onSubmit({
-    name,
-    email,
-    phone,
-  }: z.infer<typeof UserFormValidation>) {
-    setIsLoading(true);
-
-    try {
-      const userData = { name, email, phone };
-
-      const user = await createuser(userData);
-
-      if (user) router.push(`/patients/${user.$id}/register`);
-    } catch (error) {
-      console.log(error);
-    }
+async function onSubmit({
+  name,
+  email,
+  phone,
+}: z.infer<typeof UserFormValidation>) {
+  setIsLoading(true);
+  try {
+    const userData = { name, email, phone };
+    const user = await createuser(userData);
+    if (user) router.push(`/patients/${user.$id}/register`);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setIsLoading(false);
   }
+}
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">

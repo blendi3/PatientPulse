@@ -4,6 +4,14 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "fra.cloud.appwrite.io",
+      },
+    ],
+  },
 };
 
 export default withSentryConfig(nextConfig, {

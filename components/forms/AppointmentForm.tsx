@@ -23,6 +23,7 @@ import {
   getDoctorsBySpecialization,
   getSpecializationList,
 } from "@/lib/actions/doctor.actions";
+import { getImageUrl } from "@/lib/utils";
 
 const AppointmentForm = ({
   userId,
@@ -258,7 +259,7 @@ const AppointmentForm = ({
                   >
                     <div className="flex cursor-pointer items-center gap-2">
                       <Image
-                        src={doctor.image || "/assets/images/admin.png"}
+                       src={doctor.image ? getImageUrl(doctor.image) : "/assets/images/admin.png"}
                         width={32}
                         height={32}
                         alt="doctor"

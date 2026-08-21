@@ -56,10 +56,17 @@ export const sidebarLinks = [
     label: "Doctors",
     imgURL: "/assets/icons/user-plus.svg",
     route: "/doctors",
+    mvpOnly: true,
   },
   {
     label: "Patients",
     imgURL: "/assets/icons/patients.svg",
     route: "/patientstask",
+  },
+  {
+    label: "Manage Admins",
+    imgURL: "/assets/icons/user-plus.svg",
+    route: "/admin/manage-admins",
+    mvpOnly: true,
   },
 ];

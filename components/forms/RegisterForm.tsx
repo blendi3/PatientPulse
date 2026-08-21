@@ -24,6 +24,7 @@ import Image from "next/image";
 import FileUploader from "../FileUploader";
 import { Doctor } from "@/types/appwrite.types";
 import { getDoctorList } from "@/lib/actions/doctor.actions";
+import { getImageUrl } from "@/lib/utils";
 
 const RegisterForm = ({ user }: { user: User }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -226,7 +227,7 @@ const RegisterForm = ({ user }: { user: User }) => {
               >
                 <div className="flex items-center gap-2">
                   <Image
-                    src={doctor.image || "/assets/images/dr-green.png"}
+                    src={doctor.image ? getImageUrl(doctor.image) : "/assets/images/dr-green.png"}
                     width={32}
                     height={32}
                     alt={doctor.name}

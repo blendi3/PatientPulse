@@ -152,13 +152,8 @@ export const addSpecialization = async (specializationName: string) => {
 };
 export const uploadImage = async (image: string): Promise<any> => {
   try {
-    console.log("Received image:", image);
-
     const buffer = Buffer.from(image, "base64");
-    console.log("Buffer created:", buffer);
-
     const file = new File([buffer], "image.jpg", { type: "image/jpeg" });
-    console.log("File created:", file);
 
     const uploadedImage = await storage.createFile(
       BUCKET_ID!,
@@ -166,9 +161,9 @@ export const uploadImage = async (image: string): Promise<any> => {
       file
     );
 
-    console.log("Uploaded Image:", uploadedImage);
     return parseStringify(uploadedImage);
   } catch (error) {
     console.error("Upload Image error", error);
+    throw error;
   }
 };

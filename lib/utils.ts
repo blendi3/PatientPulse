@@ -8,7 +8,15 @@ export function cn(...inputs: ClassValue[]) {
 
 export const parseStringify = (value: any) => JSON.parse(JSON.stringify(value));
 
+
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
+
+export function getImageUrl(fileId: string): string {
+  const endpoint = process.env.NEXT_PUBLIC_ENDPOINT;
+  const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+  const bucketId = process.env.NEXT_PUBLIC_BUCKET_ID;
+  return `${endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}`;
+}
 
 // FORMAT DATE TIME
 export const formatDateTime = (dateString: Date | string) => {

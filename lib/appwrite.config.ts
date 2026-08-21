@@ -1,7 +1,7 @@
 import * as sdk from "node-appwrite";
 
 export const {
-  PROJECT_ID,
+  NEXT_PUBLIC_PROJECT_ID: PROJECT_ID,
   API_KEY,
   DATABASE_ID,
   PATIENT_COLLECTION_ID,
