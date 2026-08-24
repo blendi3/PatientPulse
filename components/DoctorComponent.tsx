@@ -4,7 +4,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import MobileNav from "./MobileNav";
 import { DataTable } from "./table/DataTable";
-import { doctorcolumn } from "./table/doctorcolumns";
+import { getDoctorColumns } from "./table/doctorcolumns";
 import { getDoctorList } from "@/lib/actions/doctor.actions";
 import Sidebar from "./Sidebar";
 import { Doctor } from "@/types/appwrite.types";
@@ -37,16 +37,16 @@ const DoctorComponent = () => {
     checkAccess();
   }, [router]);
 
-  useEffect(() => {
-    if (!authorized) return;
-    const fetchPatients = async () => {
-      const doctorData = await getDoctorList();
-      setDoctors(doctorData.documents);
-      setFilteredDoctors(doctorData.documents);
-    };
+const fetchDoctors = async () => {
+  const doctorData = await getDoctorList();
+  setDoctors(doctorData.documents);
+  setFilteredDoctors(doctorData.documents);
+};
 
-    fetchPatients();
-  }, [authorized]);
+useEffect(() => {
+  if (!authorized) return;
+  fetchDoctors();
+}, [authorized]);
 
   useEffect(() => {
     if (Array.isArray(doctors)) {
@@ -108,7 +108,7 @@ const DoctorComponent = () => {
               </div>
             </div>
           </section>
-          <DataTable columns={doctorcolumn} data={filteredDoctors} />
+          <DataTable columns={getDoctorColumns(fetchDoctors)} data={filteredDoctors} />
         </main>
       </div>
     </div>

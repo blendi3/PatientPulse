@@ -26,3 +26,27 @@ export const createAdmin = async (
     return { success: false, error: error?.message || "Failed to create admin." };
   }
 };
+
+export const getAdminList = async () => {
+  try {
+    const result = await users.list();
+    const admins = result.users.filter(
+      (user) =>
+        user.labels?.includes("admin") || user.labels?.includes("mvp")
+    );
+    return { success: true, admins };
+  } catch (error: any) {
+    console.error("Error fetching admins:", error);
+    return { success: false, admins: [] };
+  }
+};
+
+export const deleteAdmin = async (userId: string) => {
+  try {
+    await users.delete(userId);
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error deleting admin:", error);
+    return { success: false, error: error?.message || "Failed to delete admin." };
+  }
+};

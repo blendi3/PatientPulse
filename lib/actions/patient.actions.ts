@@ -20,10 +20,11 @@ export const createuser = async (user: CreateUserParams) => {
     const newUser = await users.create(
       ID.unique(),
       user.email,
-      undefined, 
+      undefined,
       undefined,
       user.name
     );
+    await users.updatePrefs(newUser.$id, { phone: user.phone });
     return parseStringify(newUser);
   } catch (error: any) {
     console.error("Error in createuser:", error);
@@ -67,7 +68,9 @@ export const registerPatient = async ({
       ID.unique(),
       {
         identificationDocumentId: file?.$id || null,
-        identificationDocumentUrl: `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file?.$id}/view?project=${PROJECT_ID}`,
+        identificationDocumentUrl: file
+  ? `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file.$id}/view?project=${PROJECT_ID}`
+  : null,
         ...patient,
       }
     );
@@ -108,7 +111,7 @@ export const getPatients = async () => {
           ...doc,
           user: {
             name: user.name,
-            phone: user.phone,
+            phone: (user as any).prefs?.phone,
             email: user.email,
           },
         };
@@ -128,5 +131,99 @@ export const getPatients = async () => {
     return parseStringify(uniquePatients);
   } catch (error) {
     console.error("Error fetching patients:", error);
+  }
+};
+
+export const getPatientById = async (patientId: string) => {
+  try {
+    const patient = await databases.getDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      patientId
+    );
+
+    const user = await getUser(patient.userId);
+
+    return parseStringify({
+      ...patient,
+      user: {
+        name: user.name,
+        email: user.email,
+        phone: (user as any).prefs?.phone,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching patient by ID:", error);
+    return null;
+  }
+};
+
+export const updatePatient = async (
+  patientId: string,
+  userId: string,
+  currentValues: {
+    name: string;
+    email: string;
+    phone?: string;
+  },
+  updates: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    occupation?: string;
+    emergencyContactName?: string;
+    emergencyContactNumber?: string;
+    allergies?: string;
+    currentMedication?: string;
+    identificationType?: string;
+    identificationNumber?: string;
+  }
+) => {
+  try {
+    if (updates.name && updates.name !== currentValues.name) {
+      await users.updateName(userId, updates.name);
+    }
+
+    if (updates.email && updates.email !== currentValues.email) {
+      await users.updateEmail(userId, updates.email);
+    }
+
+    if (updates.phone && updates.phone !== currentValues.phone) {
+      await users.updatePrefs(userId, { phone: updates.phone });
+    }
+
+    const patientUpdates: Record<string, string> = {};
+    [
+      "address",
+      "occupation",
+      "emergencyContactName",
+      "emergencyContactNumber",
+      "allergies",
+      "currentMedication",
+      "identificationType",
+      "identificationNumber",
+    ].forEach((key) => {
+      if (updates[key as keyof typeof updates]) {
+        patientUpdates[key] = updates[key as keyof typeof updates] as string;
+      }
+    });
+
+    if (Object.keys(patientUpdates).length > 0) {
+      await databases.updateDocument(
+        DATABASE_ID!,
+        PATIENT_COLLECTION_ID!,
+        patientId,
+        patientUpdates
+      );
+    }
+
+    revalidatePath(`/patientstask/${patientId}`);
+    revalidatePath("/patientstask");
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating patient:", error);
+    return { success: false, error: error?.message || "Failed to update patient." };
   }
 };

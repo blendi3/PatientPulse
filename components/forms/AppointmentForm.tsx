@@ -47,25 +47,6 @@ const AppointmentForm = ({
   const AppointmentFormValidation = getAppointmentSchema(type);
 
   useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const allDoctorsResponse = await getDoctorList();
-        const allDoctors = allDoctorsResponse.documents; // Use documents array
-        const filtered = allDoctors.filter(
-          (doctor: Doctor) =>
-            specializations.includes(doctor.specialization) &&
-            doctor.specialization != null
-        );
-        setFilteredDoctors(filtered);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchDoctors();
-  }, [specializations]);
-
-  useEffect(() => {
     const fetchSpecializations = async () => {
       const specializations = await getSpecializationList();
       setSpecializations(specializations);
@@ -222,7 +203,7 @@ const AppointmentForm = ({
           </section>
         )}
 
-        {type !== "cancel" && (
+        {type === "create" && (
           <>
             <div className="flex flex-col gap-6 xl:flex-row">
               <CostumFormField
@@ -231,7 +212,7 @@ const AppointmentForm = ({
                 name="specialization"
                 label="Specialist?"
                 placeholder="Choose a specialty from the list"
-                onChange={handleSpecializationChange} // Directly pass the handler
+                onChange={handleSpecializationChange}
               >
                 {specializations.map((specialization, i) => (
                   <SelectItem
@@ -259,7 +240,7 @@ const AppointmentForm = ({
                   >
                     <div className="flex cursor-pointer items-center gap-2">
                       <Image
-                       src={doctor.image ? getImageUrl(doctor.image) : "/assets/images/admin.png"}
+                        src={doctor.image ? getImageUrl(doctor.image) : "/assets/images/admin.png"}
                         width={32}
                         height={32}
                         alt="doctor"
@@ -299,6 +280,26 @@ const AppointmentForm = ({
               />
             </div>
           </>
+        )}
+
+        {type === "schedule" && (
+          <div className="space-y-4">
+            <div className="rounded-md border border-dark-500 bg-dark-400 p-4">
+              <p className="text-14-medium text-dark-700">Doctor</p>
+              <p className="text-16-semibold text-white">
+                Dr. {appointment?.primaryPhysician}
+              </p>
+            </div>
+            <CostumFormField
+              fieldType={FormFieldType.DATE_PICKER}
+              control={form.control}
+              name="schedule"
+              label="Appointment date & time"
+              showTimeSelect
+              dateFormat="dd/MM/yyyy - HH:mm"
+              filterTime={filterTimes}
+            />
+          </div>
         )}
 
         {type === "cancel" && (

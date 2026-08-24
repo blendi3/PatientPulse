@@ -40,7 +40,7 @@ export const PatientFormValidation = z.object({
       (emergencyContactNumber) => /^\+\d{10,15}$/.test(emergencyContactNumber),
       "Invalid phone number"
     ),
-  primaryPhysician: z.string().min(2, "Select at least one doctor"),
+  primaryPhysician: z.string().optional(),
   // insuranceProvider: z
   //   .string()
   //   .min(2, "Insurance name must be at least 2 characters")
@@ -56,24 +56,14 @@ export const PatientFormValidation = z.object({
   identificationType: z.string().optional(),
   identificationNumber: z.string().optional(),
   identificationDocument: z.custom<File[]>().optional(),
-  treatmentConsent: z
-    .boolean()
-    .default(false)
-    .refine((value) => value === true, {
-      message: "You must consent to treatment in order to proceed",
-    }),
-  disclosureConsent: z
-    .boolean()
-    .default(false)
-    .refine((value) => value === true, {
-      message: "You must consent to disclosure in order to proceed",
-    }),
-  privacyConsent: z
-    .boolean()
-    .default(false)
-    .refine((value) => value === true, {
-      message: "You must consent to privacy in order to proceed",
-    }),
+treatmentConsent: z
+  .boolean()
+  .default(false)
+  .refine((value) => value === true, {
+    message: "You must agree to continue",
+  }),
+disclosureConsent: z.boolean().default(true).optional(),
+privacyConsent: z.boolean().default(true).optional(),
 });
 
 export const CreateAppointmentSchema = z.object({

@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Dialog,
   DialogContent,
@@ -12,7 +11,6 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import AppointmentForm from "./forms/AppointmentForm";
 import { Appointment } from "@/types/appwrite.types";
-
 const AppointmentModal = ({
   type,
   patientId,
@@ -35,14 +33,16 @@ const AppointmentModal = ({
           {type}
         </Button>
       </DialogTrigger>
-      <DialogContent className="shad-dialog sm:max-w-md">
+      <DialogContent
+        className="shad-dialog sm:max-w-md"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader className="mb-4 space-y-3">
           <DialogTitle className="capitalize">{type} Appointment</DialogTitle>
           <DialogDescription>
             Please fill in the following details to {type} an appointment
           </DialogDescription>
         </DialogHeader>
-
         <AppointmentForm
           userId={userId}
           patientId={patientId}
@@ -54,5 +54,4 @@ const AppointmentModal = ({
     </Dialog>
   );
 };
-
 export default AppointmentModal;

@@ -1,12 +1,14 @@
 "use client";
-
 import { ColumnDef } from "@tanstack/react-table";
 import { Doctor } from "@/types/appwrite.types";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 import DeleteButton from "../DeleteButton";
 import { deleteDoctor } from "@/lib/actions/doctor.actions";
+import EditDoctorModal from "../EditDoctorModal";
 
-export const doctorcolumn: ColumnDef<Doctor>[] = [
+export const getDoctorColumns = (
+  onUpdated: () => void
+): ColumnDef<Doctor>[] => [
   {
     header: "ID",
     cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>,
@@ -47,11 +49,12 @@ export const doctorcolumn: ColumnDef<Doctor>[] = [
     header: "Actions",
     cell: ({ row: { original: data } }) => {
       return (
-        <div className="flex gap-4">
+        <div className="flex gap-2">
+          <EditDoctorModal doctor={data} onUpdated={onUpdated} />
           <DeleteButton
             id={data.$id}
-            title="Delete Appointment"
-            description="Are you sure you want to delete this appointment?"
+            title="Delete Doctor"
+            description="Are you sure you want to delete this doctor?"
             deleteFunction={deleteDoctor}
           />
         </div>

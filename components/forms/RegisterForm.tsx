@@ -28,24 +28,10 @@ import { getImageUrl } from "@/lib/utils";
 
 const RegisterForm = ({ user }: { user: User }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [doctors, setDoctors] = useState<Doctor[]>([]); // State to store fetched doctors
+
 
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const response = await getDoctorList();
-
-        if (response && response.documents) {
-          setDoctors(response.documents);
-        } else {
-        }
-      } catch (error) {}
-    };
-
-    fetchDoctors();
-  }, []);
 
   const form = useForm<z.infer<typeof PatientFormValidation>>({
     resolver: zodResolver(PatientFormValidation),
@@ -53,7 +39,7 @@ const RegisterForm = ({ user }: { user: User }) => {
       ...PatientFormDefaultValues,
       name: user.name,
       email: user.email,
-      phone: user.phone,
+     phone: (user as any).prefs?.phone || "",
     },
   });
 
@@ -212,32 +198,6 @@ const RegisterForm = ({ user }: { user: User }) => {
             <h2 className="sub-header">Medical Information</h2>
           </div>
 
-          <CostumFormField
-            fieldType={FormFieldType.SELECT}
-            control={form.control}
-            name="primaryPhysician"
-            label="Primary care physician"
-            placeholder="Select a physician"
-          >
-            {doctors.map((doctor) => (
-              <SelectItem
-                className="hover:bg-dark-500 cursor-pointer"
-                key={doctor.$id}
-                value={doctor.name}
-              >
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={doctor.image ? getImageUrl(doctor.image) : "/assets/images/dr-green.png"}
-                    width={32}
-                    height={32}
-                    alt={doctor.name}
-                    className="rounded-full border border-dark-500"
-                  />
-                  <p>{doctor.name}</p>
-                </div>
-              </SelectItem>
-            ))}
-          </CostumFormField>
 
           {/* <div className="flex flex-col gap-6 xl:flex-row">
             <CostumFormField
@@ -257,38 +217,21 @@ const RegisterForm = ({ user }: { user: User }) => {
           </div> */}
 
           <div className="flex flex-col gap-6 xl:flex-row">
-            <CostumFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="allergies"
-              label="Allergies (if any)"
-              placeholder="Peanuts, Penicilin, Pollen"
-            />
-            <CostumFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="currentMedication"
-              label="Current medication (if any)"
-              placeholder="Ibuprofen 200mg, Paracetamol 500mg"
-            />
-          </div>
-
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <CostumFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="familyMedicalHistory"
-              label="Family medical history"
-              placeholder="Mother had breast cancer"
-            />
-            <CostumFormField
-              fieldType={FormFieldType.TEXTAREA}
-              control={form.control}
-              name="pastMedicalHistory"
-              label="Past medical History"
-              placeholder="E.g., Past illnesses, surgeries, treatments"
-            />
-          </div>
+  <CostumFormField
+    fieldType={FormFieldType.TEXTAREA}
+    control={form.control}
+    name="allergies"
+    label="Allergies (if any)"
+    placeholder="Peanuts, Penicillin, Pollen"
+  />
+  <CostumFormField
+    fieldType={FormFieldType.TEXTAREA}
+    control={form.control}
+    name="currentMedication"
+    label="Medical history & current medication"
+    placeholder="Past illnesses, surgeries, and any medications you're currently taking"
+  />
+</div>
         </section>
 
         <section className="space-y-6">
@@ -340,27 +283,12 @@ const RegisterForm = ({ user }: { user: User }) => {
             <h2 className="sub-header">Consent and Privacy</h2>
           </div>
 
-          <CostumFormField
-            fieldType={FormFieldType.CHECKBOX}
-            control={form.control}
-            name="treatmentConsent"
-            label="I consent to treatment"
-            placeholder="123456789"
-          />
-          <CostumFormField
-            fieldType={FormFieldType.CHECKBOX}
-            control={form.control}
-            name="disclosureConsent"
-            label="I consent to disclosure of information"
-            placeholder="123456789"
-          />
-          <CostumFormField
-            fieldType={FormFieldType.CHECKBOX}
-            control={form.control}
-            name="privacyConsent"
-            label="I consent to privacy policy"
-            placeholder="123456789"
-          />
+   <CostumFormField
+  fieldType={FormFieldType.CHECKBOX}
+  control={form.control}
+  name="treatmentConsent"
+  label="I consent to treatment, disclosure of information, and the privacy policy"
+/>
         </section>
 
         <SubmitButton isLoading={isLoading}>Submit and Continue</SubmitButton>

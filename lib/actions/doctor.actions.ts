@@ -1,5 +1,6 @@
 "use server";
 
+import { APPOINTMENT_COLLECTION_ID } from "../appwrite.config";
 import { ID, Query } from "node-appwrite";
 import {
   DOCTOR_COLLECTION_ID,
@@ -167,3 +168,62 @@ export const uploadImage = async (image: string): Promise<any> => {
     throw error;
   }
 };
+
+export const updateDoctor = async (
+  doctorId: string,
+  oldName: string,
+  updates: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    specialization?: string;
+    image?: string;
+  }
+) => {
+  try {
+    let imageUrl;
+
+    if (updates.image) {
+      const uploadedImage = await uploadImage(updates.image);
+      imageUrl = uploadedImage.$id;
+    }
+
+    const updatedDoctor = await databases.updateDocument(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!,
+      doctorId,
+      {
+        ...(updates.name && { name: updates.name }),
+        ...(updates.email && { email: updates.email }),
+        ...(updates.phone && { phone: updates.phone }),
+        ...(updates.specialization && { specialization: updates.specialization }),
+        ...(imageUrl && { image: imageUrl }),
+      }
+    );
+
+    if (updates.name && updates.name !== oldName) {
+      const affectedAppointments = await databases.listDocuments(
+        DATABASE_ID!,
+        APPOINTMENT_COLLECTION_ID!,
+        [Query.equal("primaryPhysician", oldName)]
+      );
+
+      await Promise.all(
+        affectedAppointments.documents.map((appt) =>
+          databases.updateDocument(
+            DATABASE_ID!,
+            APPOINTMENT_COLLECTION_ID!,
+            appt.$id,
+            { primaryPhysician: updates.name }
+          )
+        )
+      );
+    }
+
+    return { success: true, doctor: parseStringify(updatedDoctor) };
+  } catch (error: any) {
+    console.error("Error in updateDoctor:", error);
+    return { success: false, error: error?.message || "Failed to update doctor." };
+  }
+};
+

@@ -3,24 +3,54 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { account } from "@/lib/appwrite.client";
-import { createAdmin } from "@/lib/actions/admin.actions";
+import { createAdmin, getAdminList, deleteAdmin } from "@/lib/actions/admin.actions";
 import Sidebar from "@/components/Sidebar";
 import MobileNav from "@/components/MobileNav";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { User, Mail, Lock, Shield, ShieldCheck, Loader2 } from "lucide-react";
+import { User, Mail, Lock, Shield, ShieldCheck, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+
+type AdminUser = {
+  $id: string;
+  name: string;
+  email: string;
+  labels: string[];
+};
 
 const ManageAdminsPage = () => {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"admin" | "mvp">("admin");
   const [isLoading, setIsLoading] = useState(false);
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AdminUser | null>(null);
+
+  const loadAdmins = async () => {
+    setIsFetching(true);
+    const result = await getAdminList();
+    if (result.success) {
+      setAdmins(result.admins as AdminUser[]);
+    }
+    setIsFetching(false);
+  };
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -31,7 +61,9 @@ const ManageAdminsPage = () => {
           router.push("/admin");
           return;
         }
+        setCurrentUserId(user.$id);
         setAuthorized(true);
+        loadAdmins();
       } catch {
         router.push("/");
       }
@@ -50,6 +82,7 @@ const ManageAdminsPage = () => {
         setEmail("");
         setPassword("");
         setRole("admin");
+        loadAdmins();
       } else {
         toast.error(result.error || "Failed to create admin.");
       }
@@ -57,6 +90,34 @@ const ManageAdminsPage = () => {
       toast.error("Something went wrong.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const confirmDelete = (admin: AdminUser) => {
+    if (admin.$id === currentUserId) {
+      toast.error("You can't remove your own account.");
+      return;
+    }
+    setPendingDelete(admin);
+  };
+
+  const executeDelete = async () => {
+    if (!pendingDelete) return;
+    const userId = pendingDelete.$id;
+    setPendingDelete(null);
+    setDeletingId(userId);
+    try {
+      const result = await deleteAdmin(userId);
+      if (result.success) {
+        toast.success("Admin removed.");
+        setAdmins((prev) => prev.filter((a) => a.$id !== userId));
+      } else {
+        toast.error(result.error || "Failed to remove admin.");
+      }
+    } catch (error) {
+      toast.error("Something went wrong.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -75,7 +136,7 @@ const ManageAdminsPage = () => {
         />
         <MobileNav />
       </div>
-      <div className="mx-auto flex-1 flex max-w-3xl min-w-20 flex-col space-y-14">
+      <div className="mx-auto flex-1 flex max-w-4xl min-w-20 flex-col space-y-14">
         <main className="admin-main">
           <section className="w-full space-y-4">
             <h1 className="header">Manage Admins</h1>
@@ -193,8 +254,97 @@ const ManageAdminsPage = () => {
               </button>
             </div>
           </form>
+
+          <section className="w-full space-y-4">
+            <h2 className="text-18-bold text-white">Current Admins</h2>
+
+            {isFetching ? (
+              <p className="text-14-regular text-dark-700">Loading admins...</p>
+            ) : admins.length === 0 ? (
+              <p className="text-14-regular text-dark-700">No admins found.</p>
+            ) : (
+              <div className="space-y-3">
+                {admins.map((admin) => {
+                  const isMvp = admin.labels?.includes("mvp");
+                  const isSelf = admin.$id === currentUserId;
+                  return (
+                    <div
+                      key={admin.$id}
+                      className="flex items-center justify-between rounded-lg border border-dark-500 bg-dark-400 p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            "flex items-center justify-center size-10 rounded-full",
+                            isMvp ? "bg-green-500/10" : "bg-dark-300"
+                          )}
+                        >
+                          {isMvp ? (
+                            <ShieldCheck className="size-5 text-green-500" />
+                          ) : (
+                            <Shield className="size-5 text-dark-600" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-14-semibold text-white">
+                            {admin.name || "Unnamed"}{" "}
+                            {isSelf && (
+                              <span className="text-12-regular text-dark-700">(you)</span>
+                            )}
+                          </p>
+                          <p className="text-12-regular text-dark-700">
+                            {admin.email} · {isMvp ? "Main Admin" : "Admin"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => confirmDelete(admin)}
+                        disabled={isSelf || deletingId === admin.$id}
+                        className={cn(
+                          "flex items-center gap-1 text-14-regular px-3 py-2 rounded-lg transition-colors",
+                          isSelf
+                            ? "text-dark-600 cursor-not-allowed"
+                            : "text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        )}
+                      >
+                        {deletingId === admin.$id ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="size-4" />
+                        )}
+                        Remove
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
         </main>
       </div>
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <AlertDialogContent className="shad-alert-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove admin?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete?.name || pendingDelete?.email} will lose access immediately. This can't be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+<AlertDialogFooter className="gap-2">
+  <AlertDialogCancel className="shad-gray-btn h-11 px-6 rounded-lg text-14-semibold hover:bg-dark-500 hover:border-dark-600 transition-colors">
+    Cancel
+  </AlertDialogCancel>
+  <button
+    onClick={executeDelete}
+    className="shad-danger-btn h-11 px-6 rounded-lg text-14-semibold hover:bg-red-800 transition-colors"
+  >
+    Remove
+  </button>
+</AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

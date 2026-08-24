@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import StatusBadge from "../StatusBadge";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, getImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import AppointmentModal from "../AppointmentModal";
 import { Appointment, Doctor } from "@/types/appwrite.types";
@@ -43,15 +43,17 @@ const DoctorCell = ({ row }: { row: Row<Appointment> }) => {
   );
 
   return (
-    <div className="flex items-center gap-2 min-w-[140px]">
+    <div className="flex items-center gap-2 min-w-[140px] max-w-[180px]">
       <Image
-        src={doctor?.image || "/assets/images/admin.png"}
+        src={doctor?.image ? getImageUrl(doctor.image) : "/assets/images/admin.png"}
         alt={doctor?.name || "Doctor"}
         width={100}
         height={100}
-        className="size-8"
+        className="size-8 shrink-0"
       />
-      <p className="whitespace-nowrap">Dr. {doctor?.name}</p>
+      <p className="truncate" title={`Dr. ${doctor?.name}`}>
+        Dr. {doctor?.name}
+      </p>
     </div>
   );
 };
@@ -109,6 +111,18 @@ export const columns: ColumnDef<Appointment>[] = [
     accessorKey: "primaryPhysician",
     header: () => "Doctor",
     cell: DoctorCell,
+  },
+  {
+    accessorKey: "reason",
+    header: "Reason",
+    cell: ({ row }) => (
+      <p
+        className="text-14-regular min-w-[140px] max-w-[200px] truncate"
+        title={row.original.note ? `${row.original.reason} — ${row.original.note}` : row.original.reason}
+      >
+        {row.original.reason || "—"}
+      </p>
+    ),
   },
   {
     id: "actions",
