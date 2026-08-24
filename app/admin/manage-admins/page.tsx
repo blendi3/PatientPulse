@@ -329,7 +329,7 @@ const ManageAdminsPage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove admin?</AlertDialogTitle>
             <AlertDialogDescription>
-              {pendingDelete?.name || pendingDelete?.email} will lose access immediately. This can't be undone.
+             {pendingDelete?.name || pendingDelete?.email} will lose access immediately. This can&apos;t be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
 <AlertDialogFooter className="gap-2">
