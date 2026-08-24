@@ -1,40 +1,44 @@
 # PatientPulse
 
-This is a comprehensive patient management application designed to streamline the process of managing patient appointments, doctor registrations, and administrative tasks. The app leverages modern web technologies to deliver a seamless and efficient user experience.
+A patient management platform for scheduling appointments, registering doctors, and handling day-to-day clinic operations through a secure admin dashboard.
 
 ## Features
 
-- **Patient Self-Registration**: Patients can easily register themselves with detailed information, which is then sent to the admin for review.
-- **Appointment Scheduling**: Schedule, create, or cancel appointments with doctors.
-- **Admin Dashboard**: Manage scheduled, pending, and canceled appointments through a secure, password-protected admin portal.
-- **Doctor Management**: Register new doctors and assign them to appointments.
-- **Real-Time Updates**: Receive immediate feedback after booking appointments, including success messages and status updates.
-- **OTP Login**: Secure admin access using a One-Time Password (OTP) system.
+- **Patient Self-Registration** — Patients register with their own details, which are stored for admin and doctor visibility.
+- **Appointment Scheduling** — Patients book, reschedule, or cancel appointments with a doctor of their choice. Bookings respect each doctor's working hours and prevent double-booking within the same hour.
+- **Role-Based Admin Access** — Two tiers of admin accounts:
+  - **Main Admin** — full access, including doctor registration and the ability to create new admin accounts.
+  - **Admin** — access to the appointments and patients dashboards only.
+- **Doctor Management** — Main admins can register doctors, assign specializations, and upload identification photos.
+- **SMS Notifications** — Appointment confirmations and reminders sent via Twilio.
+- **Admin Dashboard** — Live counts of scheduled, pending, and cancelled appointments, with search and filtering across doctors and patients.
+- **Secure Authentication** — Email and password login backed by Appwrite Auth, with session-based access control (no shared passkeys).
 
 ## Technologies Used
 
-- **Next.js**: For server-side rendering and enhanced performance.
-- **React**: For building the dynamic user interface.
-- **TailwindCSS**: For styling the application with responsive design principles.
-- **Sentry**: For real-time error tracking and monitoring.
-- **Appwrite**: For backend management, including user authentication and database handling.
+- **Next.js** — Server-side rendering and routing
+- **React** — UI layer
+- **TailwindCSS** — Styling and responsive design
+- **Appwrite** — Authentication, database, and file storage
+- **Twilio** — SMS notifications
+- **Sentry** — Error tracking and monitoring
 
 ## Usage
 
-- **Patient Self-Registration**: Patients start by registering themselves through the dedicated registration form on the first three pages. The data is then sent to the admin for further processing.
-- **Schedule Appointments**: Use the appointment page to select a doctor, choose the reason, time, and date, and confirm the appointment.
-- **Admin Access**: Log in to the admin dashboard using the provided passkey to manage appointments and view patient details.
-- **Manage Doctors**: Add new doctors to the system, which then appear in the patient registration form for selection.
-- **View Appointments**: Use the admin page to oversee all appointments, filter by status, and manage patient information.
+- **Patients** register through the homepage, then complete a detailed intake form covering contact details, medical history, and identification.
+- **Booking** — patients select a doctor, choose a reason and time, and confirm their appointment. The system enforces doctor availability and prevents overlapping bookings.
+- **Admin Login** — admins sign in with an email and password at `/admin`. What they see depends on their assigned role.
+- **Doctor Management** *(Main Admin only)* — register new doctors, who then become selectable in the patient booking flow.
+- **Admin Management** *(Main Admin only)* — create new admin accounts and assign them either Admin or Main Admin access.
 
 ## Live Demo
 
-<a href ="https://patient-pulse.vercel.app/" target="_blank">PatientPulse Live Demo</a>
+[PatientPulse Live Demo](https://patient-pulse.vercel.app/)
 
-Feel free to register as a patient, schedule appointments, or log in as an admin to explore the full functionality of the app.
+Feel free to register as a patient, schedule an appointment, or explore the admin dashboard using the demo credentials below.
 
-### !IMPORTANT
-
-For demonstration purposes, use the following credentials to access the admin panel:
-
-**Admin Passkey**: 123456
+> **Demo Admin Access**
+> Email: `admin123@gmail.com`
+> Password: `admin123`
+>
+> This is a demo-only account for evaluation purposes.
