@@ -42,6 +42,7 @@ declare type CreateAppointmentParams = {
   userId: string;
   patient: string;
   primaryPhysician: string;
+  doctorId?: string;
   reason: string;
   schedule: Date;
   status: Status;

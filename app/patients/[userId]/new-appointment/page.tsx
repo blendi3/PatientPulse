@@ -5,6 +5,7 @@ import Link from "next/link";
 import AppointmentForm from "@/components/forms/AppointmentForm";
 import { getPatient } from "@/lib/actions/patient.actions";
 import * as Sentry from "@sentry/nextjs";
+import PulseLogo from "@/components/PulseLogo";
 
 export default async function NewAppointment({
   params: { userId },
@@ -18,13 +19,7 @@ export default async function NewAppointment({
       <section className="remove-scrollbar container my-auto">
         <div className="sub-container max-w-[860px] flex-1 justify-between">
           <div className="mb-12 flex items-center gap-1">
-            <Image
-              src="/assets/icons/logo-icon.svg"
-              height={1000}
-              width={1000}
-              alt="patient"
-              className=" h-10 w-fit"
-            />
+            <PulseLogo size={40} />
             <p className="text-2xl font-semibold">PatientPulse</p>
           </div>
 

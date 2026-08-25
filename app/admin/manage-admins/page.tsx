@@ -1,5 +1,7 @@
 "use client";
 
+import PulseLogo from "@/components/PulseLogo";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { account } from "@/lib/appwrite.client";
@@ -127,13 +129,7 @@ const ManageAdminsPage = () => {
     <div className="md:flex">
       <Sidebar />
       <div className="root-layout">
-        <Image
-          src="/assets/icons/logo-icon.svg"
-          height={100}
-          width={100}
-          alt="patient"
-          className="size-[45px] xl:h-10 xl:w-fit"
-        />
+        <PulseLogo size={40} />
         <MobileNav />
       </div>
       <div className="mx-auto flex-1 flex max-w-4xl min-w-20 flex-col space-y-14">

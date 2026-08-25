@@ -1,4 +1,5 @@
 "use client";
+import PulseLogo from "@/components/PulseLogo";
 
 import {
   AlertDialog,
@@ -21,18 +22,22 @@ const PasskeyModal = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
+   useEffect(() => {
     const checkSession = async () => {
       try {
-        await account.get();
-        if (path) router.push("/admin");
+        const user = await account.get();
+        const labels = (user as any).labels || [];
+        if (labels.includes("doctor")) {
+          router.push("/doctor-portal");
+        } else if (path) {
+          router.push("/admin");
+        }
       } catch {
         setOpen(path === "/" ? true : false);
       }
     };
     checkSession();
   }, [path, router]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -40,12 +45,21 @@ const PasskeyModal = () => {
       await account.createEmailPasswordSession(email, password);
       const user = await account.get();
       const labels = (user as any).labels || [];
-        if (!labels.includes("mvp") && !labels.includes("admin")) {
+
+      if (labels.includes("doctor")) {
+        toast.success("Welcome back!");
+        setOpen(false);
+        router.push("/doctor-portal");
+        return;
+      }
+
+      if (!labels.includes("mvp") && !labels.includes("admin")) {
         toast.error("This account does not have admin access.");
         await account.deleteSession("current");
         setIsLoading(false);
         return;
-}
+      }
+
       toast.success("Welcome back!");
       setOpen(false);
       router.push("/admin");
@@ -67,12 +81,7 @@ const PasskeyModal = () => {
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center size-10 rounded-full bg-dark-400 border border-dark-500">
-              <Image
-                src="/assets/icons/logo-icon.svg"
-                height={22}
-                width={22}
-                alt="logo"
-              />
+              <PulseLogo size={40} />
             </div>
             <h2 className="text-18-bold text-white">Admin Login</h2>
           </div>

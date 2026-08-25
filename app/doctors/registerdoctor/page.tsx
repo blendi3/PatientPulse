@@ -2,7 +2,7 @@ import DoctorForm from "@/components/forms/DoctorForm";
 import MobileNav from "@/components/MobileNav";
 import NewRole from "@/components/NewRole";
 import Sidebar from "@/components/Sidebar";
-import Image from "next/image";
+import PulseLogo from "@/components/PulseLogo";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,13 +17,7 @@ const RegisterDoctors = () => {
     <div className="md:flex">
       <Sidebar />
       <div className="root-layout">
-        <Image
-          src="/assets/icons/logo-icon.svg"
-          height={100}
-          width={100}
-          alt="patient"
-          className="size-[45px] xl:h-10 xl:w-fit"
-        />
+        <PulseLogo size={40} />
         <MobileNav />
       </div>
       <div className="block md:hidden">

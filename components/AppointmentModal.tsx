@@ -11,28 +11,41 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import AppointmentForm from "./forms/AppointmentForm";
 import { Appointment } from "@/types/appwrite.types";
+
 const AppointmentModal = ({
   type,
   patientId,
   userId,
   appointment,
+  open,
+  onOpenChange,
+  hideTrigger = false,
 }: {
   type: "schedule" | "cancel";
   patientId: string;
   userId: string;
   appointment: Appointment;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isOpen = open !== undefined ? open : internalOpen;
+  const setIsOpen = onOpenChange || setInternalOpen;
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          className={`capitalize ${type === "schedule" && "text-green-500"}`}
-        >
-          {type}
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            className={`capitalize ${type === "schedule" && "text-green-500"}`}
+          >
+            {type}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent
         className="shad-dialog sm:max-w-md"
         onOpenAutoFocus={(e) => e.preventDefault()}

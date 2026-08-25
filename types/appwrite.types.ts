@@ -29,6 +29,7 @@ export interface Appointment extends Models.Document {
   schedule: Date;
   status: Status;
   primaryPhysician: string;
+  doctorId?: string;
   reason: string;
   note: string;
   userId: string;
@@ -36,7 +37,7 @@ export interface Appointment extends Models.Document {
 }
 
 export interface Doctor extends Models.Document {
-  userId: string;
+  userId?: string;
   name: string;
   email: string;
   specialization: string;

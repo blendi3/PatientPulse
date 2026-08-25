@@ -6,6 +6,7 @@ import Link from "next/link";
 import { formatDateTime } from "@/lib/utils";
 import EditPatientModal from "@/components/EditPatientModal";
 import { ArrowLeft, Mail, Phone, MapPin, Briefcase, Calendar, Users, ShieldAlert, FileText, User } from "lucide-react";
+import PulseLogo from "@/components/PulseLogo";
 
 const InfoRow = ({ label, value }: { label: string; value?: string }) => (
   <div className="space-y-1">
@@ -48,13 +49,7 @@ const PatientDetailsPage = async ({
       <div className="md:flex">
         <Sidebar />
         <div className="root-layout">
-          <Image
-            src="/assets/icons/logo-icon.svg"
-            height={100}
-            width={100}
-            alt="patient"
-            className="size-[45px] xl:h-10 xl:w-fit"
-          />
+          <PulseLogo size={40} />
           <MobileNav />
         </div>
         <div className="mx-auto flex max-w-7xl md:max-w-5xl min-w-20 flex-col space-y-14">
@@ -70,13 +65,7 @@ const PatientDetailsPage = async ({
     <div className="md:flex">
       <Sidebar />
       <div className="root-layout">
-        <Image
-          src="/assets/icons/logo-icon.svg"
-          height={100}
-          width={100}
-          alt="patient"
-          className="size-[45px] xl:h-10 xl:w-fit"
-        />
+        <PulseLogo size={40} />
         <MobileNav />
       </div>
       <div className="mx-auto flex max-w-7xl md:max-w-5xl min-w-20 flex-col space-y-14">

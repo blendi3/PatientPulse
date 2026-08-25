@@ -1,4 +1,5 @@
 "use client";
+import PulseLogo from "@/components/PulseLogo";
 
 import {
   Sheet,
@@ -38,13 +39,7 @@ const MobileNav = () => {
             className="mb-12 cursor-pointer flex items-center gap-2"
           >
             <div className="flex items-center gap-1">
-              <Image
-                src="/assets/icons/logo-icon.svg"
-                height={100}
-                width={100}
-                alt="patient"
-                className="size-[45px] xl:h-10 xl:w-fit"
-              />
+              <PulseLogo size={40} />
               <p className="text-26 font-bold text-white">PatientPulse</p>
             </div>
           </Link>

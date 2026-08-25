@@ -4,6 +4,7 @@ import { ID, Query } from "node-appwrite";
 import {
   APPOINTMENT_COLLECTION_ID,
   DATABASE_ID,
+  DOCTOR_COLLECTION_ID,
   databases,
   messaging,
 } from "../appwrite.config";
@@ -48,7 +49,7 @@ export const getRecentAppointmentList = async () => {
     const appointments = await databases.listDocuments(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
-      [Query.orderDesc("$createdAt")]
+            [Query.orderAsc("schedule")]
     );
 
     if (appointments.total === 0) {
@@ -178,5 +179,60 @@ export const sendSMSNotification = async (userId: string, content: string) => {
     return parseStringify(message);
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const getAppointmentsByDoctorId = async (doctorId: string) => {
+  try {
+    const appointments = await databases.listDocuments(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      [Query.equal("doctorId", doctorId), Query.orderAsc("schedule")]
+    );
+
+    return parseStringify(appointments.documents);
+  } catch (error) {
+    console.error("Error fetching doctor's appointments:", error);
+    return [];
+  }
+};
+
+export const backfillDoctorIds = async () => {
+  try {
+    const doctorsResponse = await databases.listDocuments(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!
+    );
+    const doctors = doctorsResponse.documents;
+
+    const appointmentsResponse = await databases.listDocuments(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      [Query.limit(100)]
+    );
+
+    let updated = 0;
+
+    for (const appt of appointmentsResponse.documents) {
+      if (!appt.doctorId && appt.primaryPhysician) {
+        const matchedDoctor = doctors.find(
+          (doc) => doc.name === appt.primaryPhysician
+        );
+        if (matchedDoctor) {
+          await databases.updateDocument(
+            DATABASE_ID!,
+            APPOINTMENT_COLLECTION_ID!,
+            appt.$id,
+            { doctorId: matchedDoctor.$id }
+          );
+          updated++;
+        }
+      }
+    }
+
+    return { success: true, updated };
+  } catch (error: any) {
+    console.error("Error backfilling doctorIds:", error);
+    return { success: false, error: error?.message };
   }
 };

@@ -9,6 +9,9 @@ import { getUser } from "@/lib/actions/patient.actions";
 import { getDoctorList } from "@/lib/actions/doctor.actions";
 import { Doctor } from "@/types/appwrite.types";
 import { getImageUrl } from "@/lib/utils";
+import PulseLogo from "@/components/PulseLogo";
+
+export const dynamic = "force-dynamic";
 
 const Success = async ({
   params: { userId },
@@ -21,9 +24,9 @@ const Success = async ({
 
   const doctors = doctorsResponse.documents;
 
-  const doctor = doctors.find(
-    (doc: Doctor) => doc.name === appointment.primaryPhysician
-  );
+const doctor = doctors.find(
+  (doc: Doctor) => doc.$id === appointment.doctorId || doc.name === appointment.primaryPhysician
+);
 
   const user = await getUser(userId);
 
@@ -34,13 +37,7 @@ const Success = async ({
       <div className="success-img">
         <Link href="/">
           <div className="flex items-center gap-1">
-            <Image
-              src="/assets/icons/logo-icon.svg"
-              height={1000}
-              width={1000}
-              alt="patient"
-              className=" h-10 w-fit"
-            />
+            <PulseLogo size={40} />
             <p className="text-2xl font-semibold">PatientPulse</p>
           </div>
         </Link>

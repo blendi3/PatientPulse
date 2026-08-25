@@ -8,40 +8,20 @@ import Image from "next/image";
 import AppointmentModal from "../AppointmentModal";
 import { Appointment, Doctor } from "@/types/appwrite.types";
 import DeleteButton from "../DeleteButton";
-import { useEffect, useState } from "react";
-import { getDoctorList } from "@/lib/actions/doctor.actions";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 import { Row } from "@tanstack/react-table";
 import { deleteAppointment } from "@/lib/actions/appointment.actions";
 
-const useDoctors = () => {
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const response = await getDoctorList();
-        if (response && response.documents) {
-          setDoctors(response.documents);
-        }
-      } catch (error) {
-        console.error("Failed to fetch doctors:", error);
-      }
-    };
-
-    fetchDoctors();
-  }, []);
-
-  return doctors;
-};
-
-const DoctorCell = ({ row }: { row: Row<Appointment> }) => {
-  const doctors = useDoctors(); // Fetch doctors
-
-  const doctor = doctors.find(
-    (doc) => doc.name === row.original.primaryPhysician
-  );
-
+const DoctorCell = ({
+  row,
+  doctors,
+}: {
+  row: Row<Appointment>;
+  doctors: Doctor[];
+}) => {
+const doctor = doctors.find(
+  (doc) => doc.$id === row.original.doctorId || doc.name === row.original.primaryPhysician
+);
   return (
     <div className="flex items-center gap-2 min-w-[140px] max-w-[180px]">
       <Image
@@ -58,7 +38,7 @@ const DoctorCell = ({ row }: { row: Row<Appointment> }) => {
   );
 };
 
-export const columns: ColumnDef<Appointment>[] = [
+export const getColumns = (doctors: Doctor[]): ColumnDef<Appointment>[] => [
   {
     header: "ID",
     cell: ({ row }) => <p className="text-14-medium">{row.index + 1}</p>,
@@ -100,7 +80,6 @@ export const columns: ColumnDef<Appointment>[] = [
         const formattedDate = formatDateTime(row.original.schedule).dateTime;
         return <p className="text-14-regular min-w-[140px]">{formattedDate}</p>;
       } else {
-        console.log("Schedule is undefined for row:", row);
         return (
           <p className="text-14-regular min-w-[100px]">Date not available</p>
         );
@@ -110,7 +89,7 @@ export const columns: ColumnDef<Appointment>[] = [
   {
     accessorKey: "primaryPhysician",
     header: () => "Doctor",
-    cell: DoctorCell,
+    cell: ({ row }) => <DoctorCell row={row} doctors={doctors} />,
   },
   {
     accessorKey: "reason",

@@ -43,6 +43,8 @@ const AppointmentForm = ({
   const [specializations, setSpecializations] = useState<string[]>([]);
   const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
   const [bookedSchedules, setBookedSchedules] = useState<Date[]>([]);
+  const [isChangingDoctor, setIsChangingDoctor] = useState(false);
+const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
 
   const AppointmentFormValidation = getAppointmentSchema(type);
 
@@ -53,6 +55,14 @@ const AppointmentForm = ({
     };
     fetchSpecializations();
   }, []);
+
+  useEffect(() => {
+  const fetchAllDoctors = async () => {
+    const response = await getDoctorList();
+    setAllDoctors(response.documents);
+  };
+  fetchAllDoctors();
+}, []);
 
   const handleSpecializationChange = async (specialization: string) => {
     const doctors = await getDoctorsBySpecialization(specialization);
@@ -128,12 +138,17 @@ const AppointmentForm = ({
         break;
     }
 
-    try {
+   try {
+      const selectedDoctor = [...filteredDoctors, ...allDoctors].find(
+        (doc) => doc.name === values.primaryPhysician
+      );
+
       if (type === "create" && patientId) {
         const appointmentData = {
           userId,
           patient: patientId,
           primaryPhysician: values.primaryPhysician,
+          doctorId: selectedDoctor?.$id,
           schedule: new Date(values.schedule),
           reason: values.reason!,
           status: status as Status,
@@ -154,6 +169,7 @@ const AppointmentForm = ({
           appointmentId: appointment?.$id!,
           appointment: {
             primaryPhysician: values?.primaryPhysician,
+            doctorId: selectedDoctor?.$id,
             schedule: new Date(values?.schedule),
             status: status as Status,
             cancellationReason: values?.cancellationReason,
@@ -282,25 +298,64 @@ const AppointmentForm = ({
           </>
         )}
 
-        {type === "schedule" && (
-          <div className="space-y-4">
-            <div className="rounded-md border border-dark-500 bg-dark-400 p-4">
-              <p className="text-14-medium text-dark-700">Doctor</p>
-              <p className="text-16-semibold text-white">
-                Dr. {appointment?.primaryPhysician}
-              </p>
+{type === "schedule" && (
+  <div className="space-y-4">
+    {!isChangingDoctor ? (
+      <div className="rounded-md border border-dark-500 bg-dark-400 p-4 flex items-center justify-between">
+        <div>
+          <p className="text-14-medium text-dark-700">Doctor</p>
+          <p className="text-16-semibold text-white">
+            Dr. {appointment?.primaryPhysician}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsChangingDoctor(true)}
+          className="text-14-regular text-green-500 hover:text-green-400"
+        >
+          Change doctor
+        </button>
+      </div>
+    ) : (
+      <CostumFormField
+        fieldType={FormFieldType.SELECT}
+        control={form.control}
+        name="primaryPhysician"
+        label="Doctor"
+        placeholder="Select a doctor"
+      >
+        {allDoctors.map((doctor) => (
+          <SelectItem
+            className="hover:bg-dark-500 cursor-pointer"
+            key={doctor.$id}
+            value={doctor.name}
+          >
+            <div className="flex cursor-pointer items-center gap-2">
+              <Image
+                src={doctor.image ? getImageUrl(doctor.image) : "/assets/images/admin.png"}
+                width={32}
+                height={32}
+                alt="doctor"
+                className="rounded-full border border-dark-500"
+              />
+              <p>{doctor.name}</p>
             </div>
-            <CostumFormField
-              fieldType={FormFieldType.DATE_PICKER}
-              control={form.control}
-              name="schedule"
-              label="Appointment date & time"
-              showTimeSelect
-              dateFormat="dd/MM/yyyy - HH:mm"
-              filterTime={filterTimes}
-            />
-          </div>
-        )}
+          </SelectItem>
+        ))}
+      </CostumFormField>
+    )}
+
+    <CostumFormField
+      fieldType={FormFieldType.DATE_PICKER}
+      control={form.control}
+      name="schedule"
+      label="Appointment date & time"
+      showTimeSelect
+      dateFormat="dd/MM/yyyy - HH:mm"
+      filterTime={filterTimes}
+    />
+  </div>
+)}
 
         {type === "cancel" && (
           <CostumFormField

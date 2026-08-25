@@ -9,6 +9,7 @@ import {
   BUCKET_ID,
   storage,
   SPECIALIZATION_COLLECTION_ID,
+  users
 } from "../appwrite.config";
 
 import { parseStringify } from "../utils";
@@ -19,26 +20,36 @@ export const addDoctor = async (doctor: Doctor) => {
   try {
     let imageUrl = "";
 
-    console.log("Doctor object received:", doctor);
-
     if (doctor.image) {
       const uploadedImage = await uploadImage(doctor.image);
       imageUrl = uploadedImage.$id;
-      console.log("Uploaded Image URL:", imageUrl);
     }
+
+    const tempPassword = Math.random().toString(36).slice(-10) + "A1!";
+
+    const newUser = await users.create(
+      ID.unique(),
+      doctor.email,
+      undefined,
+      tempPassword,
+      doctor.name
+    );
+
+    await users.updateLabels(newUser.$id, ["doctor"]);
 
     const newDoctor = await databases.createDocument(
       DATABASE_ID!,
       DOCTOR_COLLECTION_ID!,
       ID.unique(),
-      { ...doctor, image: imageUrl }
+      { ...doctor, image: imageUrl, userId: newUser.$id }
     );
 
     revalidatePath("/doctors");
 
-    return parseStringify(newDoctor);
-  } catch (error) {
+    return { ...parseStringify(newDoctor), tempPassword };
+  } catch (error: any) {
     console.error("Error in addDoctor:", error);
+    return { success: false, error: error?.message || "Failed to register doctor." };
   }
 };
 
@@ -227,3 +238,57 @@ export const updateDoctor = async (
   }
 };
 
+
+export const getDoctorByUserId = async (userId: string) => {
+  try {
+    const doctors = await databases.listDocuments(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!,
+      [Query.equal("userId", userId)]
+    );
+
+    return parseStringify(doctors.documents[0]) || null;
+  } catch (error) {
+    console.error("Error fetching doctor by userId:", error);
+    return null;
+  }
+};
+
+export const createDoctorLogin = async (doctorId: string, email: string, name: string) => {
+  try {
+    const tempPassword = Math.random().toString(36).slice(-10) + "A1!";
+
+    const newUser = await users.create(
+      ID.unique(),
+      email,
+      undefined,
+      tempPassword,
+      name
+    );
+
+    await users.updateLabels(newUser.$id, ["doctor"]);
+
+    await databases.updateDocument(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!,
+      doctorId,
+      { userId: newUser.$id }
+    );
+
+    return { success: true, tempPassword };
+  } catch (error: any) {
+    console.error("Error creating doctor login:", error);
+    return { success: false, error: error?.message || "Failed to create login." };
+  }
+};
+
+export const resetDoctorPassword = async (userId: string) => {
+  try {
+    const tempPassword = Math.random().toString(36).slice(-10) + "A1!";
+    await users.updatePassword(userId, tempPassword);
+    return { success: true, tempPassword };
+  } catch (error: any) {
+    console.error("Error resetting doctor password:", error);
+    return { success: false, error: error?.message || "Failed to reset password." };
+  }
+};

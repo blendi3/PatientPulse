@@ -3,6 +3,7 @@ import { getUser } from "@/lib/actions/patient.actions";
 import { Link } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import PulseLogo from "@/components/PulseLogo";
 
 import * as Sentry from "@sentry/nextjs";
 
@@ -16,13 +17,7 @@ const Register = async ({ params: { userId } }: SearchParamProps) => {
       <section className="remove-scrollbar container">
         <div className="sub-container max-w-[860px] flex-1 flex-col py-10">
           <div className="mb-12 flex items-center gap-1">
-            <Image
-              src="/assets/icons/logo-icon.svg"
-              height={1000}
-              width={1000}
-              alt="patient"
-              className=" h-10 w-fit"
-            />
+            <PulseLogo size={40} />
             <p className="text-2xl font-semibold">PatientPulse</p>
           </div>
 

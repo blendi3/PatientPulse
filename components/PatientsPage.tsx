@@ -1,4 +1,5 @@
 "use client";
+import PulseLogo from "@/components/PulseLogo";
 
 import React, { useState, useEffect } from "react";
 import MobileNav from "@/components/MobileNav";
@@ -37,13 +38,7 @@ const PatientsPage = () => {
     <div className="md:flex">
       <Sidebar />
       <div className="root-layout">
-        <Image
-          src="/assets/icons/logo-icon.svg"
-          height={100}
-          width={100}
-          alt="patient"
-          className="size-[45px] xl:h-10 xl:w-fit"
-        />
+        <PulseLogo size={40} />
         <MobileNav />
       </div>
       <div className="block md:hidden">

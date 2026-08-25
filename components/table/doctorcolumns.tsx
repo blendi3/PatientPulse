@@ -5,6 +5,8 @@ import { formatPhoneNumberIntl } from "react-phone-number-input";
 import DeleteButton from "../DeleteButton";
 import { deleteDoctor } from "@/lib/actions/doctor.actions";
 import EditDoctorModal from "../EditDoctorModal";
+import CreateDoctorLoginButton from "../CreateDoctorLoginButton";
+import ResetDoctorPasswordButton from "../ResetDoctorPasswordButton";
 
 export const getDoctorColumns = (
   onUpdated: () => void
@@ -43,6 +45,29 @@ export const getDoctorColumns = (
         {row.original.specialization}
       </p>
     ),
+  },
+  {
+    accessorKey: "login",
+    header: "Login",
+    cell: ({ row }) => {
+      const doctor = row.original;
+     if (doctor.userId) {
+        return (
+          <div className="flex items-center gap-1">
+            <span className="text-14-regular text-green-500">Active</span>
+            <ResetDoctorPasswordButton userId={doctor.userId} />
+          </div>
+        );
+      }
+      return (
+        <CreateDoctorLoginButton
+          doctorId={doctor.$id}
+          email={doctor.email}
+          name={doctor.name}
+          onCreated={onUpdated}
+        />
+      );
+    },
   },
   {
     accessorKey: "actions",

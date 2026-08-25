@@ -18,12 +18,10 @@ import FileUploader from "../FileUploader";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SelectItem } from "../ui/select";
-// import NewSpecializationDialog from "./NewSpecializationDialog"; // Import the dialog component
 
 const DoctorForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [specializations, setSpecializations] = useState<string[]>([]);
-  // const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useForm<z.infer<typeof DoctorFormValidation>>({
     resolver: zodResolver(DoctorFormValidation),
@@ -37,41 +35,48 @@ const DoctorForm = () => {
   });
 
   async function onSubmit({
-  name,
-  email,
-  specialization,
-  phone,
-  image,
-}: z.infer<typeof DoctorFormValidation>) {
-  setIsLoading(true);
+    name,
+    email,
+    specialization,
+    phone,
+    image,
+  }: z.infer<typeof DoctorFormValidation>) {
+    setIsLoading(true);
 
-  try {
-    let imageBase64 = "";
-    if (image && image[0]) {
-      const file = image[0];
-      const arrayBuffer = await file.arrayBuffer();
-      imageBase64 = Buffer.from(arrayBuffer).toString("base64");
+    try {
+      let imageBase64 = "";
+      if (image && image[0]) {
+        const file = image[0];
+        const arrayBuffer = await file.arrayBuffer();
+        imageBase64 = Buffer.from(arrayBuffer).toString("base64");
+      }
+
+      const doctorData = {
+        name,
+        email,
+        specialization,
+        phone,
+        image: imageBase64,
+      };
+      // @ts-ignore
+      const result = await addDoctor(doctorData);
+
+      if (result?.tempPassword) {
+        toast.success(
+          `Doctor registered! Temporary password: ${result.tempPassword}`,
+          { autoClose: false }
+        );
+      } else {
+        toast.success("Doctor registered successfully!");
+      }
+      form.reset();
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to register doctor. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    const doctorData = {
-      name,
-      email,
-      specialization,
-      phone,
-      image: imageBase64,
-    };
-    console.log("Submitting Doctor Data:", doctorData);
-    // @ts-ignore
-    await addDoctor(doctorData);
-    toast.success("Doctor registered successfully!");
-    form.reset();
-  } catch (error) {
-    console.log(error);
-    toast.error("Failed to register doctor. Please try again.");
-  } finally {
-    setIsLoading(false);
   }
-}
 
   const fetchSpecializations = async () => {
     try {
