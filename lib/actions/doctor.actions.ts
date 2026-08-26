@@ -292,3 +292,109 @@ export const resetDoctorPassword = async (userId: string) => {
     return { success: false, error: error?.message || "Failed to reset password." };
   }
 };
+
+export const updateUnavailableDates = async (
+  doctorId: string,
+  dates: string[]
+) => {
+  try {
+    const updated = await databases.updateDocument(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!,
+      doctorId,
+      { unavailableDates: dates }
+    );
+
+    return { success: true, doctor: parseStringify(updated) };
+  } catch (error: any) {
+    console.error("Error updating unavailable dates:", error);
+    return { success: false, error: error?.message };
+  }
+};
+
+export const requestUnavailableDate = async (doctorId: string, dateStr: string, isRequesting: boolean) => {
+  try {
+    const doctor = await databases.getDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID!, doctorId);
+    const currentPending: string[] = doctor.pendingUnavailableDates || [];
+    const currentApproved: string[] = doctor.unavailableDates || [];
+
+    let updatedPending = currentPending;
+
+    if (isRequesting) {
+      if (!currentPending.includes(dateStr) && !currentApproved.includes(dateStr)) {
+        updatedPending = [...currentPending, dateStr];
+      }
+    } else {
+      updatedPending = currentPending.filter((d) => d !== dateStr);
+    }
+
+    const updated = await databases.updateDocument(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!,
+      doctorId,
+      { pendingUnavailableDates: updatedPending }
+    );
+
+    return { success: true, doctor: parseStringify(updated) };
+  } catch (error: any) {
+    console.error("Error requesting unavailable date:", error);
+    return { success: false, error: error?.message };
+  }
+};
+
+export const approveUnavailableDate = async (doctorId: string, dateStr: string) => {
+  try {
+    const doctor = await databases.getDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID!, doctorId);
+    const currentPending: string[] = doctor.pendingUnavailableDates || [];
+    const currentApproved: string[] = doctor.unavailableDates || [];
+
+    const updatedPending = currentPending.filter((d) => d !== dateStr);
+    const updatedApproved = currentApproved.includes(dateStr)
+      ? currentApproved
+      : [...currentApproved, dateStr];
+
+    const updated = await databases.updateDocument(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!,
+      doctorId,
+      { pendingUnavailableDates: updatedPending, unavailableDates: updatedApproved }
+    );
+
+    return { success: true, doctor: parseStringify(updated) };
+  } catch (error: any) {
+    console.error("Error approving unavailable date:", error);
+    return { success: false, error: error?.message };
+  }
+};
+
+export const denyUnavailableDate = async (doctorId: string, dateStr: string) => {
+  try {
+    const doctor = await databases.getDocument(DATABASE_ID!, DOCTOR_COLLECTION_ID!, doctorId);
+    const currentPending: string[] = doctor.pendingUnavailableDates || [];
+    const updatedPending = currentPending.filter((d) => d !== dateStr);
+
+    const updated = await databases.updateDocument(
+      DATABASE_ID!,
+      DOCTOR_COLLECTION_ID!,
+      doctorId,
+      { pendingUnavailableDates: updatedPending }
+    );
+
+    return { success: true, doctor: parseStringify(updated) };
+  } catch (error: any) {
+    console.error("Error denying unavailable date:", error);
+    return { success: false, error: error?.message };
+  }
+};
+
+export const getDoctorsWithPendingRequests = async () => {
+  try {
+    const doctors = await databases.listDocuments(DATABASE_ID!, DOCTOR_COLLECTION_ID!);
+    return parseStringify(
+      doctors.documents.filter((d: any) => d.pendingUnavailableDates?.length > 0)
+    );
+  } catch (error: any) {
+    console.error("Error fetching pending requests:", error);
+    return [];
+  }
+};

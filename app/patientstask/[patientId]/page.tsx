@@ -1,4 +1,5 @@
 import { getPatientById } from "@/lib/actions/patient.actions";
+import { getTreatmentHistoryForPatient } from "@/lib/actions/appointment.actions";
 import Sidebar from "@/components/Sidebar";
 import MobileNav from "@/components/MobileNav";
 import Image from "next/image";
@@ -43,6 +44,8 @@ const PatientDetailsPage = async ({
   params: { patientId: string };
 }) => {
   const patient = await getPatientById(patientId);
+
+  const treatmentHistory = patient ? await getTreatmentHistoryForPatient(patient.$id) : [];
 
   if (!patient) {
     return (
@@ -154,6 +157,45 @@ const PatientDetailsPage = async ({
               )}
             </div>
           </div>
+           {treatmentHistory.length > 0 && (
+            <div className="rounded-xl border border-dark-500 bg-dark-400 p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="flex items-center justify-center size-8 rounded-full bg-green-500/10">
+                  <FileText className="size-4 text-green-500" />
+                </div>
+                <h2 className="text-16-semibold text-white">Treatment History</h2>
+              </div>
+              <div className="space-y-4">
+                {treatmentHistory.map((appt: any) => (
+                  <div
+                    key={appt.$id}
+                    className="rounded-lg border border-dark-500 bg-dark-300 p-4 space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-14-semibold text-white">
+                        Dr. {appt.primaryPhysician}
+                      </p>
+                      <p className="text-12-regular text-dark-700">
+                        {formatDateTime(appt.schedule).dateOnly}
+                      </p>
+                    </div>
+                    <p className="text-13-regular text-dark-700">
+                      Reason: {appt.reason || "—"}
+                    </p>
+                    {appt.treatmentNotes ? (
+                      <p className="text-14-regular text-white whitespace-pre-wrap">
+                        {appt.treatmentNotes}
+                      </p>
+                    ) : (
+                      <p className="text-13-regular text-dark-700 italic">
+                        No treatment notes recorded.
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>

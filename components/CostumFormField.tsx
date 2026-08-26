@@ -38,6 +38,7 @@ interface CostumProps {
   renderSkeleton?: (field: any) => React.ReactNode;
   onChange?: (value: any) => void;
   filterTime?: (time: Date) => boolean;
+  excludeDates?: Date[];
 }
 
 const RenderField = ({ field, props }: { field: any; props: CostumProps }) => {
@@ -51,6 +52,7 @@ const RenderField = ({ field, props }: { field: any; props: CostumProps }) => {
     renderSkeleton,
     // disabledTimes,
     filterTime,
+    excludeDates,
   } = props;
   switch (fieldType) {
     case FormFieldType.INPUT:
@@ -111,7 +113,7 @@ const RenderField = ({ field, props }: { field: any; props: CostumProps }) => {
           />
           <FormControl>
             <DatePicker
-              selected={field.value}
+             selected={field.value}
               onChange={(date) => field.onChange(date)}
               dateFormat={dateFormat ?? "dd/MM/yyyy"}
               showTimeSelect={showTimeSelect ?? false}
@@ -119,6 +121,8 @@ const RenderField = ({ field, props }: { field: any; props: CostumProps }) => {
               timeInputLabel="Time:"
               wrapperClassName="date-picker"
               filterTime={filterTime}
+              excludeDates={excludeDates}
+
             />
           </FormControl>
         </div>

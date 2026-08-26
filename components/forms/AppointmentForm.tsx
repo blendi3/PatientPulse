@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { FormFieldType } from "./PatientForm";
 import Image from "next/image";
 import { SelectItem } from "../ui/select";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   createAppointment,
   getBookedSchedules,
@@ -121,6 +123,16 @@ const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
     },
   });
 
+  const watchedPhysician = form.watch("primaryPhysician");
+
+const selectedDoctorForDate = [...filteredDoctors, ...allDoctors].find(
+  (doc) => doc.name === watchedPhysician
+);
+
+const excludedDates = (selectedDoctorForDate?.unavailableDates || []).map(
+  (d: string) => new Date(d)
+);
+
   async function onSubmit(values: z.infer<typeof AppointmentFormValidation>) {
     setIsLoading(true);
 
@@ -142,6 +154,17 @@ const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
       const selectedDoctor = [...filteredDoctors, ...allDoctors].find(
         (doc) => doc.name === values.primaryPhysician
       );
+
+      if (selectedDoctor?.unavailableDates?.length) {
+  const scheduleDateStr = new Date(values.schedule).toISOString().split("T")[0];
+  if (selectedDoctor.unavailableDates.includes(scheduleDateStr)) {
+    toast.error(
+      `Dr. ${selectedDoctor.name} is unavailable on this date. Please choose another date or doctor.`
+    );
+    setIsLoading(false);
+    return;
+  }
+}
 
       if (type === "create" && patientId) {
         const appointmentData = {
@@ -269,14 +292,21 @@ const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
               </CostumFormField>
             </div>
 
+            {selectedDoctorForDate?.unavailableDates?.length > 0 && (
+  <p className="text-13-regular text-yellow-500 -mt-4">
+    Dr. {selectedDoctorForDate.name} has {selectedDoctorForDate.unavailableDates.length} day{selectedDoctorForDate.unavailableDates.length > 1 ? "s" : ""} off coming up — those dates won't be available to book.
+  </p>
+)}
+
             <CostumFormField
-              fieldType={FormFieldType.DATE_PICKER}
-              control={form.control}
-              name="schedule"
-              label="Expected appointment date"
-              showTimeSelect
-              dateFormat="dd/MM/yyyy - HH:mm"
-              filterTime={filterTimes}
+            fieldType={FormFieldType.DATE_PICKER}
+  control={form.control}
+  name="schedule"
+  label="Expected appointment date"
+  showTimeSelect
+  dateFormat="dd/MM/yyyy - HH:mm"
+  filterTime={filterTimes}
+  excludeDates={excludedDates}
             />
 
             <div className="flex flex-col gap-6 xl:flex-row">

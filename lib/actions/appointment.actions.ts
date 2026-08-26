@@ -236,3 +236,37 @@ export const backfillDoctorIds = async () => {
     return { success: false, error: error?.message };
   }
 };
+
+export const markAppointmentComplete = async (appointmentId: string, treatmentNotes: string) => {
+  try {
+    const updated = await databases.updateDocument(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      appointmentId,
+      { status: "completed", treatmentNotes }
+    );
+
+    return { success: true, appointment: parseStringify(updated) };
+  } catch (error: any) {
+    console.error("Error marking appointment complete:", error);
+    return { success: false, error: error?.message };
+  }
+};
+
+export const getTreatmentHistoryForPatient = async (patientId: string) => {
+  try {
+    const appointments = await databases.listDocuments(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      [
+        Query.equal("patient", patientId),
+        Query.equal("status", "completed"),
+        Query.orderDesc("schedule"),
+      ]
+    );
+    return parseStringify(appointments.documents);
+  } catch (error: any) {
+    console.error("Error fetching treatment history:", error);
+    return [];
+  }
+};

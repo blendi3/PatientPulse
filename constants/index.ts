@@ -63,6 +63,12 @@ export const sidebarLinks = [
     imgURL: "/assets/icons/patients.svg",
     route: "/patientstask",
   },
+ {
+    label: "Day-off Requests",
+    imgURL: "/assets/icons/day-off.svg",
+    route: "/admin/day-off-requests",
+    mvpOnly: true,
+  },
   {
     label: "Manage Admins",
     imgURL: "/assets/icons/user-plus.svg",
