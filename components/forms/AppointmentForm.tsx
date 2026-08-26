@@ -294,7 +294,7 @@ const excludedDates = (selectedDoctorForDate?.unavailableDates || []).map(
 
             {selectedDoctorForDate?.unavailableDates?.length > 0 && (
   <p className="text-13-regular text-yellow-500 -mt-4">
-    Dr. {selectedDoctorForDate.name} has {selectedDoctorForDate.unavailableDates.length} day{selectedDoctorForDate.unavailableDates.length > 1 ? "s" : ""} off coming up — those dates won't be available to book.
+   Dr. {selectedDoctorForDate.name} has {selectedDoctorForDate.unavailableDates.length} day{selectedDoctorForDate.unavailableDates.length > 1 ? "s" : ""} off coming up — those dates won&apos;t be available to book.
   </p>
 )}
 

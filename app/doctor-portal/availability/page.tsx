@@ -99,7 +99,7 @@ const handleToggleDate = async (dateStr: string, currentlyPending: boolean) => {
             <h1 className="header">Manage availability</h1>
           </div>
           <p className="text-dark-700">
-            Click a date to mark yourself unavailable. Patients won't be able to book you that day.
+            Click a date to mark yourself unavailable. Patients won&apos;t be able to book you that day.
           </p>
         </section>
 
