@@ -42,7 +42,7 @@ const SetPatientPasswordForm = ({
       <div className="rounded-xl border border-green-500/30 bg-green-500/5 p-5 space-y-2">
         <div className="flex items-center gap-3">
           <CheckCircle2 className="size-5 text-green-500 shrink-0" />
-          <p className="text-14-semibold text-white">You're all set!</p>
+          <p className="text-14-semibold text-white">You&apos;re all set!</p>
         </div>
         <p className="text-13-regular text-dark-700">
           To view or manage this appointment later, go to{" "}

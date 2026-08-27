@@ -297,7 +297,7 @@ const MyAppointmentsPage = () => {
                   </div>
                   {appt.status === "completed" && appt.isReleased && appt.treatmentNotes && (
                     <div className="rounded-md bg-dark-300 border border-dark-500 p-3">
-                      <p className="text-12-medium text-green-500 mb-1">Doctor's notes</p>
+                     <p className="text-12-medium text-green-500 mb-1">Doctor&apos;s notes</p>
                       <p className="text-13-regular text-white whitespace-pre-wrap">
                         {appt.treatmentNotes}
                       </p>
