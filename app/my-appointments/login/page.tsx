@@ -89,7 +89,7 @@ const PatientLoginPage = () => {
         </div>
 
         <p className="text-13-regular text-dark-700 text-center">
-          Don't have an appointment yet?{" "}
+          Don&apos;t have an appointment yet?{" "}
           <Link href="/" className="text-green-500 hover:text-green-400">
             Book one here
           </Link>

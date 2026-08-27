@@ -193,7 +193,7 @@ const MyAppointmentsPage = () => {
             <h1 className="text-24-bold text-white">
               Hi, {patient.user?.name?.split(" ")[0] || "there"} 👋
             </h1>
-            <p className="text-dark-700 mt-1">Here's what's coming up.</p>
+           <p className="text-dark-700 mt-1">Here&apos;s what&apos;s coming up.</p>
           </div>
           <Link
             href={`/patients/${userId}/new-appointment`}
