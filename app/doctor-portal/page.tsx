@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Textarea } from "@/components/ui/textarea";
 import NotificationBell from "@/components/NotificationBell";
-import { CalendarOff } from "lucide-react";
+import { AlertTriangle, CalendarOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { account } from "@/lib/appwrite.client";
@@ -109,8 +109,16 @@ const AppointmentRow = ({
           <div className="flex items-center justify-center size-10 rounded-full bg-green-500/10 shrink-0">
             <User className="size-5 text-green-500" />
           </div>
-          <div>
-            <p className="text-14-semibold text-white">{appt.patient?.name}</p>
+           <div>
+            <div className="flex items-center gap-2">
+              <p className="text-14-semibold text-white">{appt.patient?.name}</p>
+              {appt.patient?.allergies && (
+                <span className="flex items-center gap-1 text-11-medium text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded-full">
+                  <AlertTriangle className="size-3" />
+                  Allergy
+                </span>
+              )}
+            </div>
             <p className="text-12-regular text-dark-700 flex items-center gap-1">
               <Calendar className="size-3" />
               {formatDateTime(appt.schedule).dateTime}
@@ -135,7 +143,7 @@ const AppointmentRow = ({
         </div>
       </button>
 
-      {expanded && (
+        {expanded && (
         <div className="border-t border-dark-500 p-4 space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="flex items-center gap-2 text-14-regular text-dark-700">
@@ -147,6 +155,28 @@ const AppointmentRow = ({
               {appt.patient?.email || "—"}
             </div>
           </div>
+
+          {(appt.patient?.allergies || appt.patient?.currentMedication) && (
+            <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 p-3 space-y-1">
+              {appt.patient?.allergies && (
+                <p className="text-13-regular text-white">
+                  <span className="text-yellow-500 font-semibold">Allergies:</span> {appt.patient.allergies}
+                </p>
+              )}
+              {appt.patient?.currentMedication && (
+                <p className="text-13-regular text-white">
+                  <span className="text-yellow-500 font-semibold">Medical history / medication:</span> {appt.patient.currentMedication}
+                </p>
+              )}
+            </div>
+          )}
+
+          {appt.patient?.emergencyContactName && (
+            <p className="text-13-regular text-dark-700">
+              Emergency contact: {appt.patient.emergencyContactName} — {appt.patient.emergencyContactNumber}
+            </p>
+          )}
+
           <div className="flex items-start gap-2 text-14-regular text-dark-700">
             <FileText className="size-4 shrink-0 mt-0.5" />
             <div>

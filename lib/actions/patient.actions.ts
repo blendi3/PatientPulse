@@ -14,17 +14,19 @@ import {
 import { parseStringify } from "../utils";
 import { InputFile } from "node-appwrite/file";
 import { revalidatePath } from "next/cache";
+import { unstable_noStore as noStore } from "next/cache";
 
-export const createuser = async (user: CreateUserParams) => {
+export const createuser = async (user: CreateUserParams & { password?: string }) => {
   try {
     const newUser = await users.create(
       ID.unique(),
       user.email,
       undefined,
-      undefined,
+      user.password || undefined,
       user.name
     );
     await users.updatePrefs(newUser.$id, { phone: user.phone });
+    await users.updateLabels(newUser.$id, ["patient"]);
     return parseStringify(newUser);
   } catch (error: any) {
     console.error("Error in createuser:", error);
@@ -134,7 +136,9 @@ export const getPatients = async () => {
   }
 };
 
+
 export const getPatientById = async (patientId: string) => {
+  noStore();
   try {
     const patient = await databases.getDocument(
       DATABASE_ID!,
@@ -225,5 +229,53 @@ export const updatePatient = async (
   } catch (error: any) {
     console.error("Error updating patient:", error);
     return { success: false, error: error?.message || "Failed to update patient." };
+  }
+};
+
+export const setPatientPassword = async (userId: string, password: string) => {
+  try {
+    await users.updatePassword(userId, password);
+    console.log("PASSWORD UPDATED FOR:", userId);
+
+    const patients = await databases.listDocuments(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      [Query.equal("userId", userId)]
+    );
+
+    if (patients.documents[0]) {
+      const updateResult = await databases.updateDocument(
+        DATABASE_ID!,
+        PATIENT_COLLECTION_ID!,
+        patients.documents[0].$id,
+        { hasPassword: true }
+      );
+    } else {
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error setting patient password:", error);
+    return { success: false, error: error?.message || "Failed to set password." };
+  }
+};
+
+
+export const resetPatientPasswordByEmail = async (email: string) => {
+  try {
+    const documents = await users.list([Query.equal("email", [email])]);
+    const user = documents?.users[0];
+
+    if (!user) {
+      return { success: false, error: "No account found with that email." };
+    }
+
+    const tempPassword = Math.random().toString(36).slice(-10) + "A1!";
+    await users.updatePassword(user.$id, tempPassword);
+
+    return { success: true, tempPassword, name: user.name };
+  } catch (error: any) {
+    console.error("Error resetting patient password:", error);
+    return { success: false, error: error?.message || "Failed to reset password." };
   }
 };

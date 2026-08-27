@@ -11,6 +11,7 @@ import {
 import { formatDateTime, parseStringify } from "../utils";
 import { Appointment } from "@/types/appwrite.types";
 import { revalidatePath } from "next/cache";
+import { unstable_noStore as noStore } from "next/cache";
 
 export const createAppointment = async (
   appointment: CreateAppointmentParams
@@ -254,6 +255,7 @@ export const markAppointmentComplete = async (appointmentId: string, treatmentNo
 };
 
 export const getTreatmentHistoryForPatient = async (patientId: string) => {
+  noStore();
   try {
     const appointments = await databases.listDocuments(
       DATABASE_ID!,
@@ -268,5 +270,54 @@ export const getTreatmentHistoryForPatient = async (patientId: string) => {
   } catch (error: any) {
     console.error("Error fetching treatment history:", error);
     return [];
+  }
+};
+
+
+export const getAllAppointmentsForPatient = async (patientId: string) => {
+  noStore();
+  try {
+    const appointments = await databases.listDocuments(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      [
+        Query.equal("patient", patientId),
+        Query.orderDesc("schedule"),
+      ]
+    );
+    return parseStringify(appointments.documents);
+  } catch (error: any) {
+    console.error("Error fetching patient appointments:", error);
+    return [];
+  }
+};
+
+export const cancelAppointmentBySelf = async (appointmentId: string, reason: string) => {
+  try {
+    const updated = await databases.updateDocument(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      appointmentId,
+      { status: "cancelled", cancellationReason: reason }
+    );
+    return { success: true, appointment: parseStringify(updated) };
+  } catch (error: any) {
+    console.error("Error cancelling appointment:", error);
+    return { success: false, error: error?.message };
+  }
+};
+
+export const setAppointmentReleased = async (appointmentId: string, isReleased: boolean) => {
+  try {
+    await databases.updateDocument(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      appointmentId,
+      { isReleased }
+    );
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating release status:", error);
+    return { success: false, error: error?.message };
   }
 };

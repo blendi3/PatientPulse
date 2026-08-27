@@ -1,13 +1,18 @@
 import { getPatientById } from "@/lib/actions/patient.actions";
-import { getTreatmentHistoryForPatient } from "@/lib/actions/appointment.actions";
+import { getTreatmentHistoryForPatient, getAllAppointmentsForPatient } from "@/lib/actions/appointment.actions";
 import Sidebar from "@/components/Sidebar";
+import ReleaseNotesButton from "@/components/ReleaseNotesButton";
 import MobileNav from "@/components/MobileNav";
 import Image from "next/image";
 import Link from "next/link";
-import { formatDateTime } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import EditPatientModal from "@/components/EditPatientModal";
 import { ArrowLeft, Mail, Phone, MapPin, Briefcase, Calendar, Users, ShieldAlert, FileText, User } from "lucide-react";
 import PulseLogo from "@/components/PulseLogo";
+
+
+
+export const dynamic = "force-dynamic";
 
 const InfoRow = ({ label, value }: { label: string; value?: string }) => (
   <div className="space-y-1">
@@ -46,6 +51,8 @@ const PatientDetailsPage = async ({
   const patient = await getPatientById(patientId);
 
   const treatmentHistory = patient ? await getTreatmentHistoryForPatient(patient.$id) : [];
+
+  const allAppointments = patient ? await getAllAppointmentsForPatient(patient.$id) : [];
 
   if (!patient) {
     return (
@@ -157,42 +164,66 @@ const PatientDetailsPage = async ({
               )}
             </div>
           </div>
-           {treatmentHistory.length > 0 && (
+          {allAppointments.length > 0 && (
             <div className="rounded-xl border border-dark-500 bg-dark-400 p-6">
               <div className="flex items-center gap-2 mb-6">
                 <div className="flex items-center justify-center size-8 rounded-full bg-green-500/10">
-                  <FileText className="size-4 text-green-500" />
+                  <Calendar className="size-4 text-green-500" />
                 </div>
-                <h2 className="text-16-semibold text-white">Treatment History</h2>
+                <h2 className="text-16-semibold text-white">Appointment History</h2>
               </div>
-              <div className="space-y-4">
-                {treatmentHistory.map((appt: any) => (
-                  <div
-                    key={appt.$id}
-                    className="rounded-lg border border-dark-500 bg-dark-300 p-4 space-y-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="text-14-semibold text-white">
-                        Dr. {appt.primaryPhysician}
-                      </p>
-                      <p className="text-12-regular text-dark-700">
-                        {formatDateTime(appt.schedule).dateOnly}
-                      </p>
+              <div className="space-y-3">
+                {allAppointments.map((appt: any) => {
+                  const dateLabel = formatDateTime(appt.schedule).dateTime;
+                  let statusLine = "";
+                  if (appt.status === "completed") {
+                    statusLine = `Seen by Dr. ${appt.primaryPhysician} on ${dateLabel}`;
+                  } else if (appt.status === "scheduled") {
+                    statusLine = `Will be seen by Dr. ${appt.primaryPhysician} on ${dateLabel}`;
+                  } else if (appt.status === "pending") {
+                    statusLine = `Pending confirmation with Dr. ${appt.primaryPhysician} for ${dateLabel}`;
+                  } else if (appt.status === "cancelled") {
+                    statusLine = `Cancelled appointment with Dr. ${appt.primaryPhysician} for ${dateLabel}`;
+                  }
+
+                  return (
+                    <div
+                      key={appt.$id}
+                      className="rounded-lg border border-dark-500 bg-dark-300 p-3 space-y-1"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-14-medium text-white">{statusLine}</p>
+                        <span
+                          className={cn(
+                            "text-12-medium px-3 py-1 rounded-full capitalize shrink-0 ml-2",
+                            appt.status === "scheduled" && "bg-green-500/10 text-green-500",
+                            appt.status === "pending" && "bg-yellow-500/10 text-yellow-500",
+                            appt.status === "cancelled" && "bg-red-500/10 text-red-400",
+                            appt.status === "completed" && "bg-gray-500/10 text-gray-400"
+                          )}
+                        >
+                          {appt.status}
+                        </span>
+                      </div>
+                      {appt.status === "completed" && (
+                        <p className="text-13-regular text-dark-700">
+                          Reason: {appt.reason || "—"}
+                        </p>
+                      )}
+                                         {appt.status === "completed" && appt.treatmentNotes && (
+                        <div className="space-y-2">
+                          <p className="text-14-regular text-white whitespace-pre-wrap mt-1">
+                            {appt.treatmentNotes}
+                          </p>
+                          <ReleaseNotesButton
+                            appointmentId={appt.$id}
+                            isReleased={appt.isReleased || false}
+                          />
+                        </div>
+                      )}
                     </div>
-                    <p className="text-13-regular text-dark-700">
-                      Reason: {appt.reason || "—"}
-                    </p>
-                    {appt.treatmentNotes ? (
-                      <p className="text-14-regular text-white whitespace-pre-wrap">
-                        {appt.treatmentNotes}
-                      </p>
-                    ) : (
-                      <p className="text-13-regular text-dark-700 italic">
-                        No treatment notes recorded.
-                      </p>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
+import SetPatientPasswordForm from "@/components/SetPatientPasswordForm";
 import { getAppointment } from "@/lib/actions/appointment.actions";
 import { formatDateTime } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import * as Sentry from "@sentry/nextjs";
-import { getUser } from "@/lib/actions/patient.actions";
+import { getUser, getPatient } from "@/lib/actions/patient.actions";
 import { getDoctorList } from "@/lib/actions/doctor.actions";
 import { Doctor } from "@/types/appwrite.types";
 import { getImageUrl } from "@/lib/utils";
@@ -29,6 +30,9 @@ const doctor = doctors.find(
 );
 
   const user = await getUser(userId);
+
+    const patient = await getPatient(userId);
+
 
   Sentry.metrics.set("user_view_appointment-success", user.name);
 
@@ -79,6 +83,10 @@ const doctor = doctors.find(
             <p>{formatDateTime(appointment.schedule).dateTime}</p>
           </div>
         </section>
+
+ {!patient?.hasPassword && (
+          <SetPatientPasswordForm userId={userId} email={user.email} />
+        )}
 
         <Button variant="outline" className="shad-primary-btn" asChild>
           <Link href={`/patients/${userId}/new-appointment`}>
